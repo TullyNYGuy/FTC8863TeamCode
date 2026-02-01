@@ -26,9 +26,9 @@ public class SetBlueAllianceTeamPositionRight extends LinearOpMode {
     ElapsedTime timer;
     Pose2D startingPose;
 
-    double poseX; // in inches
-    double poseY; // in inches
-    double heading; // in degrees
+    double poseX = 0; // in inches
+    double poseY = 0; // in inches
+    double heading = 0; // in degrees
 
     @Override
     public void runOpMode() {
@@ -45,7 +45,7 @@ public class SetBlueAllianceTeamPositionRight extends LinearOpMode {
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
-
+        DecodeStoreBetweenMatches.limelightPipelineNumber = 0;
         DecodeStoreBetweenMatches.startingPose = startingPose;
         AllianceColorTeamLocation.setAllianceColor(Color.BLUE);
         AllianceColorTeamLocation.setTeamLocation(AllianceColorTeamLocation.TeamLocation.RIGHT);

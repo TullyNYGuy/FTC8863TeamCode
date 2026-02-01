@@ -9,8 +9,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShotDistance;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeStoreBetweenMatches;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
@@ -34,6 +36,7 @@ public class DecodeTeleop extends LinearOpMode {
     public DecodeGamepad gamepad;
     public Configuration config = null;
     //public DecodeField field;
+    public Pose2D startPose;
 
     // public AutomaticTeleopFunctions automaticTeleopFunctions;
     //set color for each game
@@ -77,6 +80,10 @@ public class DecodeTeleop extends LinearOpMode {
         robot.createRobot();
         robot.setAllianceColor(AllianceColorTeamLocation.getAllianceColor());
         robot.sorterController.setCurrentState(DecodeStoreBetweenMatches.sorterState);
+        robot.turntableTrackingController.setPipelineNumber(DecodeShotDistance.ShotType.LONG);
+        startPose = DecodeStoreBetweenMatches.startingPose;
+        robot.mecanumDrive.pinpoint.setPosition(startPose);
+
 
         gamepad = new DecodeGamepad(gamepad1, gamepad2, robot);
 
@@ -149,7 +156,7 @@ public class DecodeTeleop extends LinearOpMode {
                 // mecanum drive if you use this next line
               //  simpleMecanumDrive(gamepad1);
             }
-
+            robot.turntableTrackingController.joystickControlShooter(gamepad.gamepad2LeftJoyStickXValue);
 
 
 //            if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {

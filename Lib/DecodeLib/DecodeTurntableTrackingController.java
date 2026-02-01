@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
@@ -19,6 +21,11 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
+    public enum ControlMode {
+        JOYSTICK_CONTROL,
+        PINPOINT_CONTROL
+    }
+    public ControlMode controlMode = ControlMode.JOYSTICK_CONTROL;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -45,6 +52,7 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
      * Property that holds a log file
      */
     private DataLogging logFile;
+
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
@@ -74,7 +82,7 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
     }
 
     final double TARGET_POSITION_TO_APRILTAG = 0;
-    
+
     /**
      * The maximum turntable rotation so that wiring does not get tangled up
      */
@@ -133,6 +141,33 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    public void setPipelineNumber(DecodeShotDistance.ShotType distance) {
+        if (AllianceColorTeamLocation.getAllianceColor() == Color.RED) {
+            if (distance == DecodeShotDistance.ShotType.LONG) {
+                limelight.limelight.pipelineSwitch(0);
+            }
+        }
+        if (AllianceColorTeamLocation.getAllianceColor() == Color.RED) {
+            if (distance == DecodeShotDistance.ShotType.SHORT || distance == DecodeShotDistance.ShotType.MEDIUM) {
+                limelight.limelight.pipelineSwitch(1);
+            }
+
+        }
+        if (AllianceColorTeamLocation.getAllianceColor() == Color.BLUE) {
+            if (distance == DecodeShotDistance.ShotType.LONG) {
+                limelight.limelight.pipelineSwitch(2);
+            }
+        }
+        if (AllianceColorTeamLocation.getAllianceColor() == Color.BLUE) {
+            if (distance == DecodeShotDistance.ShotType.SHORT || distance == DecodeShotDistance.ShotType.MEDIUM) {
+                limelight.limelight.pipelineSwitch(3);
+            }
+        }
+    }
+
+    public void joystickControlShooter(double joystickValue) {
+        shooterAngleToTarget = joystickValue * -MAX_MOTOR_POSITION;
+    }
 
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
@@ -141,9 +176,11 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
     //*********************************************************************************************
     @Override
     public void update() {
-        robotPose = pinpointDrive.pinpoint.getPosition();
-        robotBearingToTarget = goal.getBearingToTarget(robotPose,AngleUnit.DEGREES);
-        shooterAngleToTarget = ShooterAngleCalculator.getShooterAngleToTarget(robotBearingToTarget, AngleUnit.DEGREES);
+        if (controlMode == ControlMode.PINPOINT_CONTROL) {
+            robotPose = pinpointDrive.pinpoint.getPosition();
+            robotBearingToTarget = goal.getBearingToTarget(robotPose, AngleUnit.DEGREES);
+            shooterAngleToTarget = ShooterAngleCalculator.getShooterAngleToTarget(robotBearingToTarget, AngleUnit.DEGREES);
+        }
         // get limelight data
         LLResult result = limelight.limelight.getLatestResult();
         if (result != null && result.isValid()) {

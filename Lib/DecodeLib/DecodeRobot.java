@@ -74,7 +74,7 @@ public class DecodeRobot implements FTCRobot {
         COLOR_SENSOR_CONTROLLER,
         RAMP_SERVO, // END OF SORTER CONTROLLER OBJECTS
         SORTER_CONTROLLER,
-        //LIMELIGHT3A;
+        LIMELIGHT3A,
         TURNTABLE_CONTROLLER;
     }
 
@@ -226,17 +226,17 @@ public class DecodeRobot implements FTCRobot {
                     intakeMotor);
             subsystemMap.put(sorterController.getName(), sorterController);
         }
-        
+                if (capabilities.contains(Subsystem.LIMELIGHT3A)) {
+            limelight = new DecodeLimelight(hardwareMap, telemetry, imu);
+            subsystemMap.put(limelight.getName(), limelight);
+        }
         if (capabilities.contains(Subsystem.TURNTABLE_CONTROLLER)) {
             turntableTrackingController = new DecodeTurntableTrackingController(hardwareMap, telemetry,
                     limelight, turntableMotor, imu, mecanumDrive);
             subsystemMap.put(turntableTrackingController.getName(), turntableTrackingController);
         }
 
-//        if (capabilities.contains(Subsystem.LIMELIGHT3A)) {
-//            limelight = new DecodeLimelight(hardwareMap, telemetry, imu);
-//            subsystemMap.put(limelight.getName(), limelight);
-//        }
+
         
         
 
@@ -398,7 +398,6 @@ public class DecodeRobot implements FTCRobot {
         if (color == Color.RED) {
             turntableTrackingController.setGoal(redGoal);
         } else {
-            turntableTrackingController.setGoal(blueGoal);
         }
     }
 

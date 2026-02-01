@@ -400,6 +400,8 @@ public class DecodeGamepad {
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(1.0);
             //robot.intakeBucketController.intakeLowAltitude();
+            robot.ballShooter.shootMedium();
+            robot.turntableTrackingController.setPipelineNumber(DecodeShotDistance.ShotType.MEDIUM);
 
         }
 
@@ -407,12 +409,14 @@ public class DecodeGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             robot.ballShooter.shootLong();
+            robot.turntableTrackingController.setPipelineNumber(DecodeShotDistance.ShotType.LONG);
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             robot.ballShooter.shootShort();
+            robot.turntableTrackingController.setPipelineNumber(DecodeShotDistance.ShotType.SHORT);
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {

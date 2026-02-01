@@ -18,9 +18,10 @@ public class DecodeStoreBetweenMatches {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-public static DecodeSorterContoller.SorterState sorterState;
+    public static DecodeSorterContoller.SorterState sorterState;
 
-public static Pose2D startingPose;
+    public static Pose2D startingPose;
+    public static int limelightPipelineNumber;
     //*********************************************************************************************
     //          Constructors
     //
