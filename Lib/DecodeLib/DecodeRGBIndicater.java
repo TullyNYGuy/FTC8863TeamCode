@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode.Lib.DecodeLib;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
@@ -30,6 +35,7 @@ public enum IndicaterColor {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+    private ServoImplEx indicatorLight;
 
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
@@ -77,6 +83,9 @@ public enum IndicaterColor {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+   public DecodeRGBIndicater(HardwareMap hardwareMap, Telemetry telemetry){
+       indicatorLight = (ServoImplEx)hardwareMap.get(Servo .class, "indicatorLight");
+   }
 
     //*********************************************************************************************
     //          Helper Methods
@@ -89,7 +98,34 @@ public enum IndicaterColor {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    // public void
+     public void setColor(IndicaterColor color){
+         switch (color){
+             case RED:
+                 indicatorLight.setPosition(.277);
+                 break;
+             case BLUE:
+                 indicatorLight.setPosition(.611);
+                 break;
+             case BLACK:
+                 indicatorLight.setPosition(.0);
+                 break;
+             case GREEN:
+                 indicatorLight.setPosition(.444);
+                 break;
+             case WHITE:
+                 indicatorLight.setPosition(1.0);
+                 break;
+             case ORANGE:
+                 indicatorLight.setPosition(.333);
+                 break;
+             case VIOLET:
+                 indicatorLight.setPosition(.722);
+                 break;
+             case YELLOW:
+                 indicatorLight.setPosition(.388);
+                 break;
+         }
+     }
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
     //

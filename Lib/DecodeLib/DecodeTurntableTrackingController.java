@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
@@ -55,6 +56,9 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
 
     @Override
     public void setDataLog(DataLogging logFile) {
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
+        logCommentOnChange = new DataLogOnChange(logFile);
         this.logFile = logFile;
     }
 
@@ -96,6 +100,10 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
     double actualPosition = 0;
 
     boolean aprilTagAcquired;
+
+    private DataLogOnChange logCommandOnchange;
+    private DataLogOnChange logStateOnChange;
+    private DataLogOnChange logCommentOnChange;
     DecodeTurntableMotor turntableMotor;
     DecodeLimelight limelight;
     DecodeIMU imu;
@@ -135,7 +143,23 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+//    private void logState() {
+//        if (loggingOn && logFile != null) {
+//            logStateOnChange.log(getName() + " state = " + currentState.toString());
+//        }
+//    }
+//
+//    private void logCommand() {
+//        if (loggingOn && logFile != null) {
+//            logCommandOnchange.log(getName() + " command = " + currentCommand);
+//        }
+//    }
 
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChange.log(getName() + " " + comment);
+        }
+    }
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -180,6 +204,10 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
             robotPose = pinpointDrive.pinpoint.getPosition();
             robotBearingToTarget = goal.getBearingToTarget(robotPose, AngleUnit.DEGREES);
             shooterAngleToTarget = ShooterAngleCalculator.getShooterAngleToTarget(robotBearingToTarget, AngleUnit.DEGREES);
+            logComment("Pinpoint Control");
+        }
+        else {
+            logComment("Joystick Control");
         }
         // get limelight data
         LLResult result = limelight.limelight.getLatestResult();

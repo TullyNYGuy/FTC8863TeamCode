@@ -246,7 +246,9 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         // Something outside this class will have to update us with the Actual position.
         // That would most likely be the limelight. Use setPositionError() for that.
         controller.update(actualPosition);
-        turntableMotor.setPower(controller.update(actualPosition));
+        double newPower = controller.update(actualPosition);
+        telemetry.addData("Turntable Power: ", newPower);
+        turntableMotor.setPower(newPower);
     }
 
     @Override

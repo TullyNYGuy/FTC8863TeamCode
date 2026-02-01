@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
@@ -45,7 +46,12 @@ public class DecodeAutonomous extends LinearOpMode {
     @Override
     public void runOpMode() {
         MatchPhase.setMatchPhase(MatchPhase.AUTONOMOUS);
-        startPose = DecodeStoreBetweenMatches.startingPose;
+        if (startPose == null) {
+            startPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+        }
+        else {
+            startPose = DecodeStoreBetweenMatches.startingPose;
+        }
 
         //*********************************************************************************************
         //  Initializations after the program is selected by the user on the driver phone

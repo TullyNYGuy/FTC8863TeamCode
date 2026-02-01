@@ -7,12 +7,14 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShotDistance;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterContoller;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeStoreBetweenMatches;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
@@ -79,9 +81,17 @@ public class DecodeTeleop extends LinearOpMode {
         // create the robot and run the init for it
         robot.createRobot();
         robot.setAllianceColor(AllianceColorTeamLocation.getAllianceColor());
-        robot.sorterController.setCurrentState(DecodeStoreBetweenMatches.sorterState);
+        if (DecodeStoreBetweenMatches.sorterState == null) {
+            robot.sorterController.setCurrentState(DecodeSorterContoller.SorterState.ARTIFACT_ARTIFACT_ARTIFACT);
+        }
+        else {
+            robot.sorterController.setCurrentState(DecodeStoreBetweenMatches.sorterState);
+        }
         robot.turntableTrackingController.setPipelineNumber(DecodeShotDistance.ShotType.LONG);
         startPose = DecodeStoreBetweenMatches.startingPose;
+        if (startPose == null) {
+            startPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+        }
         robot.mecanumDrive.pinpoint.setPosition(startPose);
 
 
@@ -171,7 +181,8 @@ public class DecodeTeleop extends LinearOpMode {
             // feedback on the driver station
 
             gamepad.displayGamepad1JoystickValues(telemetry);
-            telemetry.addData("Robot Pose X: ", robot.mecanumDrive.pinpoint.getPosition().getX(DistanceUnit.INCH));
+            gamepad.displayGamepad2JoystickValues(telemetry);
+                telemetry.addData("Robot Pose X: ", robot.mecanumDrive.pinpoint.getPosition().getX(DistanceUnit.INCH));
             telemetry.addData("Robot Pose Y: ", robot.mecanumDrive.pinpoint.getPosition().getY(DistanceUnit.INCH));
             telemetry.addData("Robot Pose Heading: ", robot.mecanumDrive.pinpoint.getPosition().getHeading(AngleUnit.DEGREES));
             telemetry.addData("", "");

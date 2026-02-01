@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 
 @Autonomous(name = "Set BLUE alliance, LEFT side", group = "AA")
-@Disabled
+//@Disabled
 
 public class SetBlueAllianceTeamPositionLeft extends LinearOpMode {
 
