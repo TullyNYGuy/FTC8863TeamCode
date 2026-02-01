@@ -27,7 +27,7 @@ public class TestBallShooter extends LinearOpMode {
         int rpm = 0;
         int nextRPM = 0;
         int courseRPMAdjustment = 500;
-        int fineRPMAdjustment = 100;
+        int fineRPMAdjustment = 50;
 
         // These debounce the buttons so that you only see a single press even if a button is held
         // down for a long time.

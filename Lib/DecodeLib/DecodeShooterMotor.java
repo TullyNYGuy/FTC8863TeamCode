@@ -167,10 +167,13 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
         logCommand("run for long shot");
         setRPM(4760);
     }
-
+    public void runAtRPMForMediumShot() {
+        logCommand("run for Medium shot");
+        setRPM(3800);
+    }
     public void runAtRPMForShortShot() {
         logCommand("run for short shot");
-        setRPM(2690);
+        setRPM(3300);
     }
 
     public void off(){
