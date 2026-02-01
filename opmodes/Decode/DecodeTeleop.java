@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeStoreBetweenMatches;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -75,6 +76,7 @@ public class DecodeTeleop extends LinearOpMode {
         // create the robot and run the init for it
         robot.createRobot();
         robot.setAllianceColor(AllianceColorTeamLocation.getAllianceColor());
+        robot.sorterController.setCurrentState(DecodeStoreBetweenMatches.sorterState);
 
         gamepad = new DecodeGamepad(gamepad1, gamepad2, robot);
 

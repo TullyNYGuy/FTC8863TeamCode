@@ -8,8 +8,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterContoller;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeStoreBetweenMatches;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -36,11 +39,12 @@ public class DecodeAutonomous extends LinearOpMode {
 
     DataLogging dataLog = null;
 
-    private Pose2d startPose;
+    private Pose2D startPose;
 
     @Override
     public void runOpMode() {
         MatchPhase.setMatchPhase(MatchPhase.AUTONOMOUS);
+        startPose = DecodeStoreBetweenMatches.startingPose;
 
         //*********************************************************************************************
         //  Initializations after the program is selected by the user on the driver phone
@@ -60,6 +64,8 @@ public class DecodeAutonomous extends LinearOpMode {
         robot = new DecodeRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
         robot.setAllianceColor(AllianceColorTeamLocation.getAllianceColor());
+        robot.sorterController.setCurrentState(DecodeSorterContoller.SorterState.ARTIFACT_ARTIFACT_ARTIFACT);
+        robot.mecanumDrive.pinpoint.setPosition(startPose);
 
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
@@ -155,6 +161,7 @@ public class DecodeAutonomous extends LinearOpMode {
 
         // Stop has been hit or auto is complete, shutdown everything. Note that some of the subsystem shutdowns may
         // write to the datalog so we can't close it just yet.
+        DecodeStoreBetweenMatches.sorterState = robot.sorterController.getCurrentState();
         robot.shutdown();
         dataLog.closeDataLog();
         telemetry.addData(">", "Done");
