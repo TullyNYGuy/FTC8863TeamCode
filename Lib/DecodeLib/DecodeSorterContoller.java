@@ -190,13 +190,13 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     //*********************************************************************************************
     public void shootOne() {
         // do not honor a new command unless the previous one is complete
-        if (commandComplete ||
+        if (commandComplete && (
                 // allow a shoot command even when the sorter does not have 3 artifacts in it
                 currentState == SorterState.ARTIFACT_EMPTY_EMPTY ||
                 currentState == SorterState.EMPTY_ARTIFACT_EMPTY ||
                 currentState == SorterState.ARTIFACT_ARTIFACT_EMPTY ||
                 currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT ||
-                currentState == SorterState.EMPTY_ARTIFACT_ARTIFACT) {
+                currentState == SorterState.EMPTY_ARTIFACT_ARTIFACT)) {
             currentCommand = Commands.SHOOT_ONE;
             logCommand();
             commandComplete = false;
@@ -207,13 +207,13 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
 
     public void shootTwo() {
         // do not honor a new command unless the previous one is complete
-        if (commandComplete ||
+        if (commandComplete && (
                 // allow a shoot command even when the sorter does not have 3 artifacts in it
                 currentState == SorterState.ARTIFACT_EMPTY_EMPTY ||
                 currentState == SorterState.EMPTY_ARTIFACT_EMPTY ||
                 currentState == SorterState.EMPTY_ARTIFACT_ARTIFACT ||
                 currentState == SorterState.ARTIFACT_ARTIFACT_EMPTY ||
-                currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT) {
+                currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT)) {
             currentCommand = Commands.SHOOT_TWO;
             logCommand();
             commandComplete = false;
@@ -224,13 +224,13 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
 
     public void shootThree() {
         // do not honor a new command unless the previous one is complete
-        if (commandComplete ||
+        if (commandComplete && (
                 // allow a shoot command even when the sorter does not have 3 artifacts in it
                 currentState == SorterState.ARTIFACT_EMPTY_EMPTY ||
                 currentState == SorterState.EMPTY_ARTIFACT_EMPTY ||
                 currentState == SorterState.EMPTY_ARTIFACT_ARTIFACT ||
                 currentState == SorterState.ARTIFACT_ARTIFACT_EMPTY ||
-                currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT) {
+                currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT)) {
             currentCommand = Commands.SHOOT_THREE;
             logCommand();
             commandComplete = false;
@@ -269,7 +269,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     //*********************************************************************************************
     //          State machine
     //*********************************************************************************************
-    private enum SorterState {
+    public enum SorterState {
         EMPTY_EMPTY_EMPTY,
         ARTIFACT_EMPTY_EMPTY,
         ARTIFACT_ARTIFACT_EMPTY,
@@ -282,6 +282,15 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     }
 
     private SorterState currentState = SorterState.EMPTY_EMPTY_EMPTY;
+
+    public void setCurrentState(SorterState currentState) {
+        this.currentState = currentState;
+    }
+
+    public SorterState getCurrentState() {
+        return currentState;
+    }
+
     /**
      * sorterSlotStatus is used to track where the artifacts are. It is used for debug and displayed
      * on the driver station
@@ -335,7 +344,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     case SHOOT_THREE:
                         logComment("shoot 1/2/3 command rejected - no artifacts");
                         //These commands are not valid continue intaking
-                        currentCommand = Commands.INTAKE;
+                        currentCommand = Commands.NO_COMMAND;
+                        commandComplete = true;
                         break;
                     case INTAKE_OFF:
                         intakeMotor.off();
@@ -398,6 +408,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     case INTAKE:
                         // we cannot intake in this state, there is no open slot
                         currentCommand = Commands.NO_COMMAND;
+                        commandComplete = true;
                         break;
                     case NO_COMMAND:
                         break;
@@ -499,6 +510,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     case INTAKE:
                         // we cannot intake in this state, there is no open slot
                         currentCommand = Commands.NO_COMMAND;
+                        commandComplete = true;
                         break;
                     case NO_COMMAND:
                         break;
