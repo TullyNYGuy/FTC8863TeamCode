@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
@@ -72,8 +73,9 @@ public class DecodeRobot implements FTCRobot {
         INTAKE_MOTOR,
         COLOR_SENSOR_CONTROLLER,
         RAMP_SERVO, // END OF SORTER CONTROLLER OBJECTS
-        SORTER_CONTROLLER;
+        SORTER_CONTROLLER,
         //LIMELIGHT3A;
+        TURNTABLE_CONTROLLER;
     }
 
     Set<Subsystem> capabilities;
@@ -112,6 +114,11 @@ public class DecodeRobot implements FTCRobot {
 
     public LoopTimer loopTimer;
     public DecodeRobotModes robotModes;
+    public DecodeTarget redGoal;
+    public DecodeTarget blueGoal;
+    public DecodeTurntableTrackingController turntableTrackingController;
+
+
 
     public DecodeRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config,
                        DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
@@ -219,11 +226,19 @@ public class DecodeRobot implements FTCRobot {
                     intakeMotor);
             subsystemMap.put(sorterController.getName(), sorterController);
         }
+        
+        if (capabilities.contains(Subsystem.TURNTABLE_CONTROLLER)) {
+            turntableTrackingController = new DecodeTurntableTrackingController(hardwareMap, telemetry,
+                    limelight, turntableMotor, imu, mecanumDrive);
+            subsystemMap.put(turntableTrackingController.getName(), turntableTrackingController);
+        }
 
 //        if (capabilities.contains(Subsystem.LIMELIGHT3A)) {
 //            limelight = new DecodeLimelight(hardwareMap, telemetry, imu);
 //            subsystemMap.put(limelight.getName(), limelight);
 //        }
+        
+        
 
         if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS){
             init();
@@ -242,6 +257,8 @@ public class DecodeRobot implements FTCRobot {
                 */
             }
         }
+        redGoal = new DecodeTarget(new Pose2D(DistanceUnit.INCH, -58.3, 55.6, AngleUnit.DEGREES, 0));
+        blueGoal = new DecodeTarget(new Pose2D(DistanceUnit.INCH, -58.3, -55.6, AngleUnit.DEGREES, 0));
 
         return true;
     }
@@ -378,7 +395,11 @@ public class DecodeRobot implements FTCRobot {
     }
 
     public void setAllianceColor(Color color) {
-        //extensionArmIntakeController.setupAllianceColor(color);
+        if (color == Color.RED) {
+            turntableTrackingController.setGoal(redGoal);
+        } else {
+            turntableTrackingController.setGoal(blueGoal);
+        }
     }
 
 }
