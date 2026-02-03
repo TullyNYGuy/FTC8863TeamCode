@@ -107,7 +107,7 @@ public class DecodeRobot implements FTCRobot {
     public DecodeIntakeMotor intakeMotor;
     public DecodeColorSensorController colorSensorController;
     public DecodeRampServo rampServo;
-    public DecodeSorterContoller sorterController;
+    public DecodeSorterController sorterController;
     public DecodeLimelight limelight;
 
     public LoopTimer loopTimer;
@@ -221,7 +221,7 @@ public class DecodeRobot implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.SORTER_CONTROLLER)) {
-            sorterController = new DecodeSorterContoller(hardwareMap, telemetry,
+            sorterController = new DecodeSorterController(hardwareMap, telemetry,
                     colorSensorController,
                     sorterMotor,
                     rampServo,
@@ -235,7 +235,11 @@ public class DecodeRobot implements FTCRobot {
         }
         if (capabilities.contains(Subsystem.TURNTABLE_CONTROLLER)) {
             turntableTrackingController = new DecodeTurntableTrackingController(hardwareMap, telemetry,
-                    limelight, turntableMotor, imu, mecanumDrive);
+                    limelight,
+                    turntableMotor,
+                    imu,
+                    mecanumDrive,
+                    indicator);
             subsystemMap.put(turntableTrackingController.getName(), turntableTrackingController);
         }
 

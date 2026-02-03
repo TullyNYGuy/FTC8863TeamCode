@@ -7,12 +7,10 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class DecodeSorterContoller implements FTCRobotSubsystem {
+public class DecodeSorterController implements FTCRobotSubsystem {
 
-    // private static final Logger log = LoggerFactory.getLogger(DecodeSorterContoller.class);
+    // private static final Logger log = LoggerFactory.getLogger(decodeSorterController.class);
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -120,12 +118,12 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public DecodeSorterContoller(HardwareMap hardwareMap, Telemetry telemetry,
-                                 DecodeColorSensorController decodeColorSensorController,
-                                 DecodeSorterMotor sorterMotor,
-                                 DecodeRampServo decodeRampServo,
-                                 DecodeIntakeMotor intakeMotor,
-                                 DecodeRGBIndicator indicator) {
+    public DecodeSorterController(HardwareMap hardwareMap, Telemetry telemetry,
+                                  DecodeColorSensorController decodeColorSensorController,
+                                  DecodeSorterMotor sorterMotor,
+                                  DecodeRampServo decodeRampServo,
+                                  DecodeIntakeMotor intakeMotor,
+                                  DecodeRGBIndicator indicator) {
         this.colorSensorController = decodeColorSensorController;
         this.sorterMotor = sorterMotor;
         this.rampServo = decodeRampServo;
@@ -138,6 +136,14 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         currentCommand = Commands.NO_COMMAND;
         // initial state is intake
         currentState = SorterState.EMPTY_EMPTY_EMPTY;
+
+        // set the defaults for the indicator light
+        indicator.setFrequency(3);
+        // black is off
+        indicator.setColor(DecodeRGBIndicator.IndicatorColor.BLACK);
+        // blinking means that the turntable is not locked onto the april tag. The turntable controller will
+        // set this and control it but we default it here
+        indicator.setMode(DecodeRGBIndicator.Mode.BLINKING);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -323,6 +329,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             // 0 artifacts in the sorter
             // This state occurs after shooting all available artifacts
             case EMPTY_EMPTY_EMPTY:
+                // red for no artifacts in the sorter
+                indicator.setColor(DecodeRGBIndicator.IndicatorColor.RED);
                 sorterSlotStatus = currentState;
                 switch (currentCommand) {
                     case PREPARE_TO_INTAKE:
@@ -330,7 +338,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         // We will come back to this state after preparing for the intake
                         prepareToIntake(0, SorterState.EMPTY_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_INTAKE;
-                        indicator.setColor(DecodeRGBIndicator.IndicaterColor.RED);
+                        indicator.setColor(DecodeRGBIndicator.IndicatorColor.RED);
                         break;
                     // since this state already has an open slot, we can intake from this state
                     case INTAKE:
@@ -403,6 +411,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             // This state occurs after shooting 1 artifact from ARTIFACT_ARTIFACT_EMPTY
             // This state occurs after shooting 1 artifact from EMPTY_ARTIFACT_ARTIFACT
             case ARTIFACT_EMPTY_EMPTY:
+                // orange for 1 artifact in the sorter
+                indicator.setColor(DecodeRGBIndicator.IndicatorColor.ORANGE);
                 sorterSlotStatus = currentState;
                 switch (currentCommand) {
                     case PREPARE_TO_INTAKE:
@@ -422,7 +432,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         // 1 artifact in the sorter, can only shoot 1
                         currentCommand = Commands.SHOOT_ONE;
                         logComment("Shooting 1 artifact");
-                        prepareToShoot(240, SorterState.EMPTY_EMPTY_EMPTY);
+                        // 360 to reduce the chances of jamming
+                        prepareToShoot(360, SorterState.EMPTY_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_SHOOT;
                         break;
                     case INTAKE_OFF:
@@ -437,6 +448,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             // This state occurs after preparing to intake a 2nd artifact
             // This state also occurs after shooting 2 artifacts from a full sorter
             case EMPTY_ARTIFACT_EMPTY:
+                // orange for 1 artifact in the sorter
+                indicator.setColor(DecodeRGBIndicator.IndicatorColor.ORANGE);
                 sorterSlotStatus = currentState;
                 switch (currentCommand) {
                     case PREPARE_TO_INTAKE:
@@ -505,6 +518,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             // 2 artifacts in the sorter
             // This state occurs after intaking the 2nd artifact
             case ARTIFACT_ARTIFACT_EMPTY:
+                // yellow for 2 artifacts in the sorter
+                indicator.setColor(DecodeRGBIndicator.IndicatorColor.YELLOW);
                 sorterSlotStatus = currentState;
                 switch (currentCommand) {
                     case PREPARE_TO_INTAKE:
@@ -542,6 +557,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             // 2 artifacts in sorter.
             // This state occurs after preparing to intake a 3rd artifact
             case EMPTY_ARTIFACT_ARTIFACT:
+                // yellow for 2 artifacts in the sorter
+                indicator.setColor(DecodeRGBIndicator.IndicatorColor.YELLOW);
                 sorterSlotStatus = SorterState.EMPTY_ARTIFACT_ARTIFACT;
                 switch (currentCommand) {
                     case PREPARE_TO_INTAKE:
@@ -590,6 +607,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             // 3 artifacts in sorter
             // This state occurs after intaking a 3rd artifact
             case ARTIFACT_ARTIFACT_ARTIFACT:
+                // green for 3 artifacts in the sorter
+                indicator.setColor(DecodeRGBIndicator.IndicatorColor.GREEN);
                 sorterSlotStatus = currentState;
                 switch (currentCommand) {
                     // The sorter is full. We cannot intake.

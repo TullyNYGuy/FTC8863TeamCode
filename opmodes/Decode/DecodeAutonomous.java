@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.Decode;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -13,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShotDistance;
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterContoller;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterController;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeStoreBetweenMatches;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
@@ -71,7 +70,7 @@ public class DecodeAutonomous extends LinearOpMode {
         robot = new DecodeRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
         robot.setAllianceColor(AllianceColorTeamLocation.getAllianceColor());
-        robot.sorterController.setCurrentState(DecodeSorterContoller.SorterState.ARTIFACT_ARTIFACT_ARTIFACT);
+        robot.sorterController.setCurrentState(DecodeSorterController.SorterState.ARTIFACT_ARTIFACT_ARTIFACT);
         robot.mecanumDrive.pinpoint.setPosition(startPose);
         robot.turntableTrackingController.setPipelineNumber(DecodeShotDistance.ShotType.LONG);
 

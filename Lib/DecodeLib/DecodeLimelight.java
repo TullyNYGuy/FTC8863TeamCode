@@ -49,7 +49,63 @@ public class DecodeLimelight implements FTCRobotSubsystem {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
+    private boolean aprilTagAcquired = false;
+    public boolean isAprilTagAcquired() {
+        return aprilTagAcquired;
+    }
 
+    private LLResult limelightResult;
+
+    public LLResult getLimelightResult() {
+        return limelightResult;
+    }
+
+    private double tx = 0;
+
+    /**
+     * // How far left or right the target is (degrees)
+     * @return
+     */
+    public double getTx() {
+        return tx;
+    }
+
+    /**
+     *
+     */
+    private double ty = 0;
+
+    /**
+     * // How far up or down the target is (degrees)
+     * @return
+     */
+    public double getTy() {
+        return ty;
+    }
+
+    /**
+     *
+     */
+    private double ta = 0;
+
+    /**
+     * How big the target looks (0%-100% of the image)
+     * @return
+     */
+    public double getTa() {
+        return ta;
+    }
+
+    private int aprilTagIDFirst;
+
+    /**
+     * Get the first of the april tag IDs that is seen. There can be more but this is the first one
+     * in the list
+     * @return
+     */
+    public int getFirstAprilTagID() {
+        return aprilTagIDFirst;
+    }
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods For Implementing FTCRobotSubsystem
     //
@@ -105,12 +161,30 @@ public class DecodeLimelight implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void start() {
+    public void start(int pollRateInHz) {
+        limelight.setPollRateHz(pollRateInHz);
         limelight.start();
     }
 
     public void pipelineSwitch(int pipelineNumber) {
         limelight.pipelineSwitch(pipelineNumber);
+    }
+
+    public boolean getFreshData() {
+        boolean gotGoodData = false;
+        limelightResult = limelight.getLatestResult();
+        if (limelightResult != null) {
+            gotGoodData = true;
+            if (limelightResult.isValid()) {
+                aprilTagAcquired = true;
+                tx = limelightResult.getTx(); // How far left or right the target is (degrees)
+                ty = limelightResult.getTy(); // How far up or down the target is (degrees)
+                ta = limelightResult.getTa(); // How big the target looks (0%-100% of the image)
+            } else {
+                aprilTagAcquired = false;
+            }
+        }
+        return gotGoodData;
     }
 
     public double getDistaceToGoal(DistanceUnit requestedUnits){
@@ -140,6 +214,18 @@ public class DecodeLimelight implements FTCRobotSubsystem {
         }
         return tx;
     }
+
+//    public int getAprilTagIDNumber() {
+//        List<FiducialResult> fiducials = result.getFiducialResults();
+//        for (FiducialResult fiducial : fiducials) {
+//            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+//            double x = detection.getTargetXDegrees(); // Where it is (left-right)
+//            double y = detection.getTargetYDegrees(); // Where it is (up-down)
+//            double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getY();
+//            telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
+//        }
+//    }
+
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
     //

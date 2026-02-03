@@ -10,6 +10,10 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OnOffCycler;
 
+/**
+ * This class drives the Gobilda RGB indicator. The device takes a servo command and lights up in a color
+ * that is related to the servo command.
+ */
 public class DecodeRGBIndicator implements FTCRobotSubsystem {
 
     //*********************************************************************************************
@@ -18,9 +22,9 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-    public enum IndicaterColor {
+    public enum IndicatorColor {
         WHITE,
-        BLACK,
+        BLACK, // off
         GREEN,
         VIOLET,
         YELLOW,
@@ -30,9 +34,11 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
 
     }
 
-    private IndicaterColor indicaterColor = IndicaterColor.GREEN;
+    private IndicatorColor indicatorColor = IndicatorColor.GREEN;
+    private IndicatorColor previousIndicatorColor = indicatorColor;
+    private IndicatorColor indicatorColorWhenBlinkBackOn = indicatorColor;
 
-    private enum Mode {
+    public enum Mode {
         SOLID,
         BLINKING;
     }
@@ -99,6 +105,7 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     public DecodeRGBIndicator(HardwareMap hardwareMap, Telemetry telemetry) {
         indicatorLight = (ServoImplEx) hardwareMap.get(Servo.class, subsystemName);
         onOffCycler = new OnOffCycler(1);
+
     }
 
     //*********************************************************************************************
@@ -112,53 +119,93 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void setColor(IndicaterColor color) {
-        switch (color) {
-            case RED:
-                indicatorLight.setPosition(.277);
-                break;
-            case BLUE:
-                indicatorLight.setPosition(.611);
-                break;
-            case BLACK:
-                indicatorLight.setPosition(.0);
-                break;
-            case GREEN:
-                indicatorLight.setPosition(.444);
-                break;
-            case WHITE:
-                indicatorLight.setPosition(1.0);
-                break;
-            case ORANGE:
-                indicatorLight.setPosition(.333);
-                break;
-            case VIOLET:
-                indicatorLight.setPosition(.722);
-                break;
-            case YELLOW:
-                indicatorLight.setPosition(.388);
-                break;
+
+    /**
+     * Set a color for the light.
+     * @param color
+     */
+    public void setColor(IndicatorColor color) {
+        double servoCommand = 0;
+        // only send the command to the servo if there is a change in color so that bus traffic is reduced
+        if (color != previousIndicatorColor) {
+            switch (color) {
+                case RED:
+                    previousIndicatorColor = IndicatorColor.RED;
+                    servoCommand = .280;
+                    break;
+                case BLUE:
+                    previousIndicatorColor = IndicatorColor.BLUE;
+                    servoCommand = .611;
+                    break;
+                case BLACK:
+                    previousIndicatorColor = IndicatorColor.BLACK;
+                    servoCommand = .0;
+                    break;
+                case GREEN:
+                    previousIndicatorColor = IndicatorColor.GREEN;
+                    servoCommand = .444;
+                    break;
+                case WHITE:
+                    previousIndicatorColor = IndicatorColor.WHITE;
+                    servoCommand = 1.0;
+                    break;
+                case ORANGE:
+                    previousIndicatorColor = IndicatorColor.ORANGE;
+                    servoCommand = .333;
+                    break;
+                case VIOLET:
+                    previousIndicatorColor = IndicatorColor.VIOLET;
+                    servoCommand = .722;
+                    break;
+                case YELLOW:
+                    previousIndicatorColor = IndicatorColor.YELLOW;
+                    servoCommand = .388;
+                    break;
+            }
+            indicatorLight.setPosition(servoCommand);
         }
     }
-public void setMode(Mode mode){
-    this.mode = mode;
-    if (mode == Mode.BLINKING){
-        onOffCycler.start();
+
+    /**
+     * Set the light to a continuous on or to blinking at a certain frequency
+     * @param mode
+     */
+    public void setMode(Mode mode) {
+        this.mode = mode;
+        if (mode == Mode.BLINKING) {
+            onOffCycler.start();
+        }
+
     }
 
-}
-public void setFrequency(double frequency){
-        onOffCycler.setFrequency(frequency);
-}
+    /**
+     * Set the frequency to blink the light at.
+     * @param frequencyInHZ
+     */
+    public void setFrequency(double frequencyInHZ) {
+        onOffCycler.setFrequency(frequencyInHZ);
+    }
+
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    /**
+     * The update has to be called in order to get the blinking to work.
+     */
     @Override
     public void update() {
-        if (mode == Mode.BLINKING){
-            //if ()
+        if (mode == Mode.BLINKING) {
+            if (onOffCycler.getState() == OnOffCycler.State.OFF) {
+                indicatorColorWhenBlinkBackOn = indicatorColor;
+                setColor(IndicatorColor.BLACK);
+            } else {
+                setColor(indicatorColorWhenBlinkBackOn);
+            }
+        } else {
+            setColor(indicatorColor);
         }
     }
 

@@ -7,15 +7,15 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShotDistance;
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterContoller;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterController;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeStoreBetweenMatches;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeTurntableTrackingController;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -82,18 +82,21 @@ public class DecodeTeleop extends LinearOpMode {
         robot.createRobot();
         robot.setAllianceColor(AllianceColorTeamLocation.getAllianceColor());
         if (DecodeStoreBetweenMatches.sorterState == null) {
-            robot.sorterController.setCurrentState(DecodeSorterContoller.SorterState.ARTIFACT_ARTIFACT_ARTIFACT);
+            robot.sorterController.setCurrentState(DecodeSorterController.SorterState.EMPTY_EMPTY_EMPTY);
         }
         else {
             robot.sorterController.setCurrentState(DecodeStoreBetweenMatches.sorterState);
         }
         robot.turntableTrackingController.setPipelineNumber(DecodeShotDistance.ShotType.LONG);
+
         startPose = DecodeStoreBetweenMatches.startingPose;
         if (startPose == null) {
             startPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
         }
         robot.mecanumDrive.pinpoint.setPosition(startPose);
-
+        // control the rough positioning of the turntable using either the joystick (JOYSTICK_CONTROL) or the using a calculation of the
+        // angle to the goal derived from the robot pose (PINPOINT_CONTROL)
+        robot.turntableTrackingController.controlMode = DecodeTurntableTrackingController.ControlMode.PINPOINT_CONTROL;
 
         gamepad = new DecodeGamepad(gamepad1, gamepad2, robot);
 
@@ -127,7 +130,7 @@ public class DecodeTeleop extends LinearOpMode {
         //robot.setColor(color);
         waitForStart();
 
-
+        robot.turntableTrackingController.start(100);
 
 //            robot.intakeBucketController.getReadyToRun();
 //            while(!robot.intakeBucketController.isGetReadyToRunComplete()) {
@@ -180,9 +183,13 @@ public class DecodeTeleop extends LinearOpMode {
 
             // feedback on the driver station
 
-            gamepad.displayGamepad1JoystickValues(telemetry);
-            gamepad.displayGamepad2JoystickValues(telemetry);
-                telemetry.addData("Robot Pose X: ", robot.mecanumDrive.pinpoint.getPosition().getX(DistanceUnit.INCH));
+            //gamepad.displayGamepad1JoystickValues(telemetry);
+            //gamepad.displayGamepad2JoystickValues(telemetry);
+            robot.sorterController.displayState(telemetry);
+            robot.sorterController.displayCommand(telemetry);
+            telemetry.addLine();
+            telemetry.addData("Turntable Motor Power: ", robot.turntableMotor.newPower);
+            telemetry.addData("Robot Pose X: ", robot.mecanumDrive.pinpoint.getPosition().getX(DistanceUnit.INCH));
             telemetry.addData("Robot Pose Y: ", robot.mecanumDrive.pinpoint.getPosition().getY(DistanceUnit.INCH));
             telemetry.addData("Robot Pose Heading: ", robot.mecanumDrive.pinpoint.getPosition().getHeading(AngleUnit.DEGREES));
             telemetry.addData("", "");

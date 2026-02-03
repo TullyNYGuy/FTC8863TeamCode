@@ -5,9 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeColorSensorController;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeMotor;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRGBIndicator;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRampServo;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShooterMotor;
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterContoller;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterController;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
@@ -21,13 +22,15 @@ public class TestSorterController extends LinearOpMode {
 
     // Put your variable declarations her
 
-    DecodeSorterContoller decodeSorterContoller;
+    DecodeSorterController decodeSorterController;
     DecodeRampServo decodeRampServo;
     DecodeIntakeMotor decodeIntakeMotor;
     DecodeSorterMotor decodeSorterMotor;
     DecodeShooterMotor decodeShooterMotor;
     DecodeColorSensorController decodeColorSensorController;
     DataLogging dataLog;
+
+    DecodeRGBIndicator RGBIndicator;
 
     @Override
     public void runOpMode() {
@@ -70,14 +73,18 @@ public class TestSorterController extends LinearOpMode {
         decodeRampServo.enableDataLogging();
         decodeRampServo.init(null);
 
-        decodeSorterContoller = new DecodeSorterContoller(hardwareMap, telemetry,
+        RGBIndicator = new DecodeRGBIndicator(hardwareMap, telemetry);
+
+        decodeSorterController = new DecodeSorterController(hardwareMap, telemetry,
                 decodeColorSensorController,
                 decodeSorterMotor,
                 decodeRampServo,
-                decodeIntakeMotor);
-        decodeSorterContoller.setDataLog(dataLog);
-        decodeSorterContoller.enableDataLogging();
-        decodeSorterContoller.init(null);
+                decodeIntakeMotor,
+                RGBIndicator
+                );
+        decodeSorterController.setDataLog(dataLog);
+        decodeSorterController.enableDataLogging();
+        decodeSorterController.init(null);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -89,15 +96,15 @@ public class TestSorterController extends LinearOpMode {
 
 
         while (opModeIsActive()) {
-            decodeSorterContoller.update();
+            decodeSorterController.update();
 
             if (debouncedY.isPressed(gamepad2.y)) {
-                decodeSorterContoller.shootThree();
+                decodeSorterController.shootThree();
 
             }
 
             if (debouncedA.isPressed(gamepad2.a)) {
-                decodeSorterContoller.shootOne();
+                decodeSorterController.shootOne();
             }
 
             if (debouncedX.isPressed(gamepad2.x)) {
@@ -105,21 +112,21 @@ public class TestSorterController extends LinearOpMode {
             }
 
             if (debouncedB.isPressed(gamepad2.b)) {
-                decodeSorterContoller.shootTwo();
+                decodeSorterController.shootTwo();
             }
 
             if (debouncedDpadUp.isPressed(gamepad2.dpad_up)) {
-                decodeSorterContoller.intake();
+                decodeSorterController.intake();
             }
 
             if (debouncedDpadDown.isPressed(gamepad2.dpad_down)) {
-                decodeSorterContoller.intakeOff();
+                decodeSorterController.intakeOff();
             }
 
             decodeIntakeMotor.update();
             decodeSorterMotor.update();
             decodeColorSensorController.update();
-            decodeSorterContoller.update();
+            decodeSorterController.update();
 
             // limit the rpm between 0 and 1
 
@@ -131,11 +138,11 @@ public class TestSorterController extends LinearOpMode {
             telemetry.addData("Dpad up =", "Intake on");
             telemetry.addData("Dpad down =", "Intake off");
             telemetry.addLine();
-            decodeSorterContoller.displayState(telemetry);
-            decodeSorterContoller.displayCommand(telemetry);
-            decodeSorterContoller.displayCommandComplete(telemetry);
-            decodeSorterContoller.displaySensorStatus(telemetry);
-            //decodeSorterContoller.displaySorterSlotStatus(telemetry);
+            decodeSorterController.displayState(telemetry);
+            decodeSorterController.displayCommand(telemetry);
+            decodeSorterController.displayCommandComplete(telemetry);
+            decodeSorterController.displaySensorStatus(telemetry);
+            //decodeSorterController.displaySorterSlotStatus(telemetry);
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

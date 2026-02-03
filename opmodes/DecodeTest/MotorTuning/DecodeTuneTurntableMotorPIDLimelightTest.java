@@ -65,7 +65,7 @@ public class DecodeTuneTurntableMotorPIDLimelightTest extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         squareWaveGenerator.start();
-        limelight.start();
+        limelight.start(100);
 
         while (opModeIsActive()) {
 

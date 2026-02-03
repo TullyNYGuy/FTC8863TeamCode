@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.DecodeLib;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -44,6 +45,8 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     PIDFController controller;
     private DataLogOnChange logCommandOnchange;
     private DataLogOnChange logCommentOnChange;
+
+    public double newPower = 0;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -119,6 +122,12 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         this.positionError = positionError;
     }
 
+    private final double MAX_TURNTABLE_ANGLE = 70; // DEGREES
+
+    public double getMAX_TURNTABLE_ANGLE() {
+        return MAX_TURNTABLE_ANGLE;
+    }
+
     private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.TURNTABLE_MOTOR.hwName;
 
     /**
@@ -164,7 +173,7 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         turntableMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         setDirection(Direction.REVERSE);
 
-        controller = new PIDFController(new PIDCoefficients(0.008,0,.010),1.2,0,.002);
+        controller = new PIDFController(new PIDCoefficients(0.012,0,.010),1.2,0,.002);
         // set the target position tolerance in degrees. If the turntable is within 3 degrees of the target,
         // the controller will say that it is on target
         controller.setTargetPositionTolerance(3.0);
@@ -223,6 +232,10 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         return turntableMotor.getCurrent(CurrentUnit.AMPS);
     }
 
+    public void setMode(DcMotor.RunMode mode) {
+        turntableMotor.setMode(mode);
+    }
+
     /**
      * Stops the gearbox
      */
@@ -239,15 +252,19 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
 
     @Override
     public void update() {
-
+        turntableMotor.update();
     }
 
     public void updateWithPosition(double actualPosition) {
         // Something outside this class will have to update us with the Actual position.
-        // That would most likely be the limelight. Use setPositionError() for that.
-        controller.update(actualPosition);
-        double newPower = controller.update(actualPosition);
-        telemetry.addData("Turntable Power: ", newPower);
+        // limit the rotation of the turntable
+        if (Math.abs(actualPosition) < MAX_TURNTABLE_ANGLE) {
+            newPower = controller.update(actualPosition);
+            telemetry.addData("Turntable Power: ", newPower);
+        } else {
+            // the turntable is over the max limit for rotation. Stop the motor
+            newPower = 0;
+        }
         turntableMotor.setPower(newPower);
     }
 

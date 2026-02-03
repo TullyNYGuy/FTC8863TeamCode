@@ -33,31 +33,32 @@ public class DecodeTestRGBIndicator extends LinearOpMode {
 
 
             if (gamepad1.a) {
-                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.GREEN);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicatorColor.GREEN);
             }
 
             if (gamepad1.x) {
-                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.BLUE);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicatorColor.BLUE);
             }
 
             if (gamepad1.b) {
-                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.RED);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicatorColor.RED);
             }
 
             if (gamepad1.y) {
-                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.YELLOW);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicatorColor.YELLOW);
             }
             if (gamepad1.dpad_down) {
-                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.VIOLET);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicatorColor.VIOLET);
             }
             if (gamepad1.dpad_up) {
-                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.BLACK);
+                RGBIndicator.setFrequency(1);
+                RGBIndicator.setMode(DecodeRGBIndicator.Mode.BLINKING);
             }
             if (gamepad1.dpad_left) {
-                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.WHITE);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicatorColor.WHITE);
             }
             if (gamepad1.dpad_right) {
-                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.ORANGE);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicatorColor.ORANGE);
             }
             telemetry.addData("dpad up = black","");
             telemetry.addData("dpad down = violet","");
@@ -73,6 +74,7 @@ public class DecodeTestRGBIndicator extends LinearOpMode {
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
+        RGBIndicator.update();
 
     }
 }

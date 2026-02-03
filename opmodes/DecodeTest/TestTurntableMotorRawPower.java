@@ -1,46 +1,47 @@
 package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIMU;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeLimelight;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeTurntableMotor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Decode Test Limelight Distance", group = "Test")
+@TeleOp(name = "Decode Test Turntable Motor Raw Power", group = "Test")
 //@Disabled
-public class TestLimelightDistance extends LinearOpMode {
+public class TestTurntableMotorRawPower extends LinearOpMode {
 
-    // Put your variable declarations here
-    public DecodeLimelight limelight;
-    public DecodeIMU imu;
+
+    // Put your variable declarations her
+    DecodeTurntableMotor turntableMotor;
 
     @Override
     public void runOpMode() {
 
-
         // Put your initializations here
-        imu = new DecodeIMU(hardwareMap, telemetry);
-        limelight = new DecodeLimelight(hardwareMap, telemetry, imu);
+        turntableMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
+        turntableMotor.init(null);
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
-        limelight.start(100);
+
         // Put your calls here - they will not run in a loop
+        turntableMotor.setPower(.2);
+
 
         while (opModeIsActive()) {
 
-            // Put your calls that need to run in a loop here
-            telemetry.addData("Distance To Goal (in) ", limelight.getDistaceToGoal(DistanceUnit.INCH));
-            telemetry.addData(">", "Press Stop to end test.");
-
+            telemetry.addData("Current used = ", turntableMotor.getCurrent());
+            turntableMotor.displayTurntableAngle();
+            telemetry.addData(">", "stop to finish");
             telemetry.update();
-
             idle();
         }
 
