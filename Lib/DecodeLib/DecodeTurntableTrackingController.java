@@ -103,6 +103,10 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
 
     boolean aprilTagAcquired;
 
+    public boolean isAprilTagAcquired() {
+        return aprilTagAcquired;
+    }
+
     private DataLogOnChange logCommandOnchange;
     private DataLogOnChange logStateOnChange;
     private DataLogOnChange logCommentOnChange;
@@ -212,6 +216,22 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
             onTarget = true;
         }
         return onTarget;
+    }
+
+    public void displayIsOnTarget(Telemetry telemetry){
+        if (isOnTarget()) {
+            telemetry.addData("Shooter ON target", "");
+        } else {
+            telemetry.addData("Shooter NOT on target", "");
+        }
+    }
+
+    public void displayTargettingMethod(Telemetry telemetry) {
+        if (isAprilTagAcquired()) {
+            telemetry.addData("APRILTAG targetting", "");
+        } else {
+            telemetry.addData("ROBOT POSE targetting", "");
+        }
     }
 
     public void joystickControlShooter(double joystickValue) {

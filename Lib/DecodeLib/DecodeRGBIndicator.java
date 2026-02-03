@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OnOffCycler;
@@ -34,15 +35,14 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
 
     }
 
-    private IndicatorColor indicatorColor = IndicatorColor.GREEN;
-    private IndicatorColor previousIndicatorColor = indicatorColor;
-    private IndicatorColor indicatorColorWhenBlinkBackOn = indicatorColor;
+    private IndicatorColor currentIndicatorColor = IndicatorColor.BLACK;
+    private IndicatorColor blinkingOnColor = currentIndicatorColor;
+    private final IndicatorColor blinkingOffColor = IndicatorColor.BLACK;
 
     public enum Mode {
         SOLID,
         BLINKING;
     }
-
     private Mode mode = Mode.SOLID;
 
     //*********************************************************************************************
@@ -61,6 +61,7 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
+    private DataLogOnChange logCommentOnChange;
 
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods For Implementing FTCRobotSubsystem
@@ -77,6 +78,7 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+        logCommentOnChange = new DataLogOnChange(logFile);
     }
 
     /**
@@ -105,7 +107,12 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     public DecodeRGBIndicator(HardwareMap hardwareMap, Telemetry telemetry) {
         indicatorLight = (ServoImplEx) hardwareMap.get(Servo.class, subsystemName);
         onOffCycler = new OnOffCycler(1);
-
+        // Default the light to off
+        setColor(IndicatorColor.BLACK);
+        // default the light to solid color
+        setMode(Mode.SOLID);
+        // default the frequency to 1
+        setFrequency(1);
     }
 
     //*********************************************************************************************
@@ -113,6 +120,11 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChange.log(getName() + " " + comment);
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -122,46 +134,44 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
 
     /**
      * Set a color for the light.
-     * @param color
+     * @param newColor
      */
-    public void setColor(IndicatorColor color) {
+    public void setColor(IndicatorColor newColor) {
         double servoCommand = 0;
         // only send the command to the servo if there is a change in color so that bus traffic is reduced
-        if (color != previousIndicatorColor) {
-            switch (color) {
+        if (newColor != currentIndicatorColor) {
+            switch (newColor) {
                 case RED:
-                    previousIndicatorColor = IndicatorColor.RED;
-                    servoCommand = .280;
+                    servoCommand = .285;
                     break;
                 case BLUE:
-                    previousIndicatorColor = IndicatorColor.BLUE;
                     servoCommand = .611;
                     break;
                 case BLACK:
-                    previousIndicatorColor = IndicatorColor.BLACK;
                     servoCommand = .0;
                     break;
                 case GREEN:
-                    previousIndicatorColor = IndicatorColor.GREEN;
                     servoCommand = .444;
                     break;
                 case WHITE:
-                    previousIndicatorColor = IndicatorColor.WHITE;
                     servoCommand = 1.0;
                     break;
                 case ORANGE:
-                    previousIndicatorColor = IndicatorColor.ORANGE;
                     servoCommand = .333;
                     break;
                 case VIOLET:
-                    previousIndicatorColor = IndicatorColor.VIOLET;
                     servoCommand = .722;
                     break;
                 case YELLOW:
-                    previousIndicatorColor = IndicatorColor.YELLOW;
                     servoCommand = .388;
                     break;
             }
+            logComment("RGB command = " + servoCommand);
+            // save the color for when it is used to blink the indicator
+            if (newColor != IndicatorColor.BLACK) {
+                blinkingOnColor = newColor;
+            }
+            currentIndicatorColor = newColor;
             indicatorLight.setPosition(servoCommand);
         }
     }
@@ -172,10 +182,20 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
      */
     public void setMode(Mode mode) {
         this.mode = mode;
-        if (mode == Mode.BLINKING) {
+        if (this.mode == Mode.BLINKING) {
             onOffCycler.start();
+            logComment("Mode = blinking");
+        } else {
+            // mode is solid, set the solid color back to the blinking on color
+            // this is because the current color at the time this setMode is called might be black
+            setColor(blinkingOnColor);
+            logComment("Mode = solid");
         }
 
+    }
+
+    public void off() {
+        setColor(IndicatorColor.BLACK);
     }
 
     /**
@@ -199,13 +219,17 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     public void update() {
         if (mode == Mode.BLINKING) {
             if (onOffCycler.getState() == OnOffCycler.State.OFF) {
-                indicatorColorWhenBlinkBackOn = indicatorColor;
-                setColor(IndicatorColor.BLACK);
+                // send black (off) to indicator
+                setColor(blinkingOffColor);
+                logComment("blinking = off state");
             } else {
-                setColor(indicatorColorWhenBlinkBackOn);
+                setColor(blinkingOnColor);
+                logComment("blinking = on state");
             }
         } else {
-            setColor(indicatorColor);
+            // solid mode
+            setColor(currentIndicatorColor);
+            logComment("mode = solid");
         }
     }
 
