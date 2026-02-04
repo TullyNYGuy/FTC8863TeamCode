@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeBallShooter;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeMotor;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRampServo;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 
@@ -21,6 +22,7 @@ public class TestBallShooter extends LinearOpMode {
     DecodeBallShooter ballShooter;
     DecodeSorterMotor sorterMotor;
     DecodeIntakeMotor intakeMotor;
+    DecodeRampServo rampServo;
 
     @Override
     public void runOpMode() {
@@ -44,6 +46,7 @@ public class TestBallShooter extends LinearOpMode {
         ballShooter.init(null);
         sorterMotor = new DecodeSorterMotor(hardwareMap, telemetry);
         intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
+        rampServo = new DecodeRampServo(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -51,7 +54,7 @@ public class TestBallShooter extends LinearOpMode {
         waitForStart();
         sorterMotor.setRPM(140);
         intakeMotor.setRPM(500);
-
+        rampServo.upPosition();
         // Put your calls here - they will not run in a loop
 
         while (opModeIsActive()) {
@@ -78,6 +81,10 @@ public class TestBallShooter extends LinearOpMode {
             }
             if (gamepad2.dpad_down){
                 ballShooter.setHoodPosition(DecodeBallShooter.HoodPositions.SHORT);
+            }
+
+            if (gamepad2.dpadLeftWasPressed()) {
+                ballShooter.setHoodPosition(DecodeBallShooter.HoodPositions.MEDIUM);
             }
 
             // limit the rpm between 0 and 1

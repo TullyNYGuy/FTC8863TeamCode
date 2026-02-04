@@ -21,6 +21,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     //*********************************************************************************************
     public enum HoodPositions {
         SHORT,
+        MEDIUM,
         LONG
     }
     //*********************************************************************************************
@@ -134,6 +135,9 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     public void setHoodPosition(HoodPositions hoodPosition) {
         if (hoodPosition == HoodPositions.SHORT) {
             hoodServo.shortPosition();
+        }
+        if (hoodPosition == HoodPositions.MEDIUM) {
+            hoodServo.mediumPosition();
         }
         if (hoodPosition == HoodPositions.LONG) {
             hoodServo.longPosition();

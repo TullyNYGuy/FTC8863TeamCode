@@ -46,6 +46,7 @@ public class DecodeHoodServo implements FTCRobotSubsystem {
 
     private double initPosition = 0.06;
     private double shortPosition = 0.06;
+    private double mediumPosition = 0.22;
     private double longPosition = 0.35;
 
     //New index position (hood down)  = .06
@@ -75,6 +76,7 @@ public class DecodeHoodServo implements FTCRobotSubsystem {
 
         hoodServo.addPosition("initPosition", initPosition, 250, TimeUnit.MILLISECONDS);
         hoodServo.addPosition("shortPosition", shortPosition, 250, TimeUnit.MILLISECONDS);
+        hoodServo.addPosition("mediumPosition", mediumPosition, 250, TimeUnit.MILLISECONDS);
         hoodServo.addPosition("longPosition", longPosition, 250, TimeUnit.MILLISECONDS);
         hoodServo.addPosition("shutdownPosition", shutdownPosition, 250, TimeUnit.MILLISECONDS);
         // old lift was forward direction
@@ -105,6 +107,11 @@ public class DecodeHoodServo implements FTCRobotSubsystem {
     public void shortPosition() {
         hoodServo.setPosition("shortPosition");
         logCommand("short Position");
+    }
+
+    public void mediumPosition() {
+        hoodServo.setPosition("mediumPosition");
+        logCommand("medium Position");
     }
 
     public void longPosition() {
