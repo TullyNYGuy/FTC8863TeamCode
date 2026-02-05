@@ -148,7 +148,7 @@ public class TestTurntableMotorPositionControl extends LinearOpMode {
             telemetry.addData("Actual position = ", actualPosition);
             telemetry.addData("Position error = ", positionError);
             telemetry.addData("Current used = ", turntableMotor.getCurrent());
-            turntableMotor.displayTurntableAngle();
+            turntableMotor.displayTurntableAngle(telemetry);
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

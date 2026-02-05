@@ -66,7 +66,7 @@ public class DecodeTuneSorterMotorPID extends LinearOpMode {
             sorterMotor.setPower(newMotorPower);
 
             telemetry.addData("Actual RPM = ", sorterMotor.getCommandedRPM());
-            sorterMotor.displayTurntableAngle();
+            sorterMotor.displayTurntableAngle(telemetry);
             telemetry.addData("kStatic ", controller.getkStatic());
             telemetry.addData("Motor Command ", newMotorPower);
             telemetry.addData(">", "stop to finish");

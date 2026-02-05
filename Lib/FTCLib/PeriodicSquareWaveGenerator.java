@@ -48,6 +48,11 @@ public class PeriodicSquareWaveGenerator {
      * The amplitude of the wave in whatever units you are using.
      */
     public static double amplitude = 1;
+    public static double offset = 0;
+
+    public static void setOffset(double offset) {
+        PeriodicSquareWaveGenerator.offset = offset;
+    }
 
     public double getAmplitude() {
         return amplitude;
@@ -68,6 +73,14 @@ public class PeriodicSquareWaveGenerator {
     public PeriodicSquareWaveGenerator(double periodInMilliseconds, double amplitude) {
         this.periodInMilliseconds = periodInMilliseconds;
         this.amplitude = amplitude;
+        this.offset = 0;
+        timer = new ElapsedTime();
+    }
+
+    public PeriodicSquareWaveGenerator(double periodInMilliseconds, double amplitude, double offset) {
+        this.periodInMilliseconds = periodInMilliseconds;
+        this.amplitude = amplitude;
+        this.offset = offset;
         timer = new ElapsedTime();
     }
 
@@ -96,7 +109,7 @@ public class PeriodicSquareWaveGenerator {
      * @return
      */
     public double getY() {
-        return (amplitude * Math.signum(Math.sin(2 * Math.PI * timer.milliseconds() / periodInMilliseconds)));
+        return (amplitude * Math.signum(Math.sin(2 * Math.PI * timer.milliseconds() / periodInMilliseconds)) + offset);
     }
 
 }

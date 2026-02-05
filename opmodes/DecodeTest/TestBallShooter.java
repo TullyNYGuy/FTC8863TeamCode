@@ -1,15 +1,20 @@
 package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeBallShooter;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeMotor;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRampServo;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDCoefficients;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDFController;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -24,12 +29,19 @@ public class TestBallShooter extends LinearOpMode {
     DecodeIntakeMotor intakeMotor;
     DecodeRampServo rampServo;
 
+    PIDFController controller;
+
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
     @Override
     public void runOpMode() {
         int rpm = 0;
         int nextRPM = 0;
         int courseRPMAdjustment = 500;
         int fineRPMAdjustment = 50;
+        boolean pIDFMode = false;
+        double actualRPM = 0;
 
         // These debounce the buttons so that you only see a single press even if a button is held
         // down for a long time.
@@ -47,6 +59,9 @@ public class TestBallShooter extends LinearOpMode {
         sorterMotor = new DecodeSorterMotor(hardwareMap, telemetry);
         intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
         rampServo = new DecodeRampServo(hardwareMap, telemetry);
+
+        controller = new PIDFController(new PIDCoefficients(0,0,.00),.000185,0,0);
+        controller.setOutputBounds(-1,1);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -76,9 +91,32 @@ public class TestBallShooter extends LinearOpMode {
             if (debouncedDpadDown.isPressed(gamepad1.dpad_down)) {
                 nextRPM = nextRPM - fineRPMAdjustment;
             }
+
+            if (debouncedDpadLeft.isPressed(gamepad1.dpad_left)) {
+                rpm = nextRPM;
+                if (pIDFMode) {
+                    controller.setTargetVelocity(rpm);
+                    controller.setTargetPosition(rpm);
+                } else {
+                    ballShooter.setRPM(rpm);
+                }
+
+            }
+
+            if (gamepad2.yWasPressed()) {
+                ballShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                pIDFMode = true;
+            }
+
+            if (gamepad2.aWasPressed()) {
+                ballShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                pIDFMode = false;
+            }
+
             if (gamepad2.dpad_up){
                 ballShooter.setHoodPosition(DecodeBallShooter.HoodPositions.LONG);
             }
+
             if (gamepad2.dpad_down){
                 ballShooter.setHoodPosition(DecodeBallShooter.HoodPositions.SHORT);
             }
@@ -89,32 +127,44 @@ public class TestBallShooter extends LinearOpMode {
 
             // limit the rpm between 0 and 1
             nextRPM = Range.clip(nextRPM, 0, 6000);
+            actualRPM = ballShooter.getActualRPM();;
 
-            if (debouncedDpadLeft.isPressed(gamepad1.dpad_left)) {
-                rpm = nextRPM;
-                ballShooter.setRPM(rpm);
+            if (pIDFMode) {
+                double newMotorPower = controller.update(actualRPM, actualRPM);
+                ballShooter.setPower(newMotorPower);
+            } else {
+                // use the sdk to control speed
             }
 
-            telemetry.addData("Y = ", "+" + Integer.toString(courseRPMAdjustment));
-            telemetry.addData("X = ", "6000");
-            telemetry.addData("B = ", "-" + Integer.toString(courseRPMAdjustment));
-            telemetry.addData("A = ", "0");
-            telemetry.addData("Dpad up = ", "+" + Integer.toString(fineRPMAdjustment));
-            telemetry.addData("Dpad down = ", "-" + Integer.toString(fineRPMAdjustment));
-            telemetry.addData("Dpad left = ", "Set motor to next rpm");
+
+            telemetry.addData("gamepad 1 Y = ", "+" + Integer.toString(courseRPMAdjustment));
+            telemetry.addData("gamepad 1 X = ", "6000");
+            telemetry.addData("gamepad 1 B = ", "-" + Integer.toString(courseRPMAdjustment));
+            telemetry.addData("gamepad 1 A = ", "0");
+            telemetry.addData("gamepad 1 Dpad up = ", "+" + Integer.toString(fineRPMAdjustment));
+            telemetry.addData("gamepad 1 Dpad down = ", "-" + Integer.toString(fineRPMAdjustment));
+            telemetry.addData("gamepad 1 Dpad left = ", "Set motor to next rpm");
+            telemetry.addData("gamepad 2 Y = ", "PIDF mode");
+            telemetry.addData("gamepad 2 A = ", "SDK mode");
             telemetry.addLine();
             telemetry.addData("Current Speed = ", rpm);
             telemetry.addData("Next Speed = ", nextRPM);
-            telemetry.addData("Actual RPM = ", ballShooter.getRPM());
-            telemetry.addData("Encoder count = ", ballShooter.getShooterMotorEncoderCount());
+            telemetry.addData("Actual RPM = ", actualRPM);
             telemetry.addData(">", "stop to finish");
             telemetry.update();
+
+            dashboardTelemetry.addData("Actual RPM ", actualRPM);
+            dashboardTelemetry.update();
             idle();
         }
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
+
+    }
+
+    public void controlSpeedViaPIDF (double actualRPM) {
 
     }
 }

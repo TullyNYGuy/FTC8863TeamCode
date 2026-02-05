@@ -54,7 +54,7 @@ public class DecodeTuneSorterMotorFeedfoward extends LinearOpMode {
             normalizedRPM = sorterMotor.getActualRPM()/ sorterMotor.getNoLoadRPM();
 
 
-            sorterMotor.displayTurntableAngle();
+            sorterMotor.displayTurntableAngle(telemetry);
             telemetry.addData("kV ", controller.getkV());
             telemetry.addData("kA ", controller.getkA());
             telemetry.addData("kStatic ", controller.getkStatic());

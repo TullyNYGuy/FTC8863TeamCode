@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeTurntableMotor;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShooterMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDFController;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PeriodicTrapezoidGenerator;
@@ -13,12 +13,12 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.PeriodicTrapezoidGenerator;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Decode Tune Turntable Motor Feedforward", group = "Tune")
+@TeleOp(name = "Decode Tune Shooter Motor Feedforward", group = "Tune")
 //@Disabled
-public class DecodeTuneTurntableMotorFeedfoward extends LinearOpMode {
+public class DecodeTuneShooterMotorFeedfoward extends LinearOpMode {
 
     // Put your variable declarations her
-    DecodeTurntableMotor turntableMotor;
+    DecodeShooterMotor shooterMotor;
     PeriodicTrapezoidGenerator trapezoidWave;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -31,11 +31,11 @@ public class DecodeTuneTurntableMotorFeedfoward extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        turntableMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
-        turntableMotor.init(null);
+        shooterMotor = new DecodeShooterMotor(hardwareMap, telemetry);
+        shooterMotor.init(null);
         trapezoidWave = new PeriodicTrapezoidGenerator(4000, .8);
         // kStatic was already found experimentally
-        controller = new PIDFController(new PIDCoefficients(0,0,0),0,0,.004);
+        controller = new PIDFController(new PIDCoefficients(0,0,0),5000,0,.000);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -49,23 +49,22 @@ public class DecodeTuneTurntableMotorFeedfoward extends LinearOpMode {
         while (opModeIsActive()) {
 
             controller.setTargetVelocity(trapezoidWave.getY());
-            newMotorPower = controller.update(turntableMotor.getPositionInTermsOfAttachment());
-            turntableMotor.setPower(newMotorPower);
-            normalizedRPM = turntableMotor.getActualRPM()/ turntableMotor.getNoLoadRPM();
+            newMotorPower = controller.update(shooterMotor.getActualRPM());
+            shooterMotor.setPower(newMotorPower);
+            normalizedRPM = shooterMotor.getActualRPM()/ shooterMotor.getNoLoadRPM();
 
-
-            turntableMotor.displayTurntableAngle(telemetry);
             telemetry.addData("kV ", controller.getkV());
             telemetry.addData("kA ", controller.getkA());
             telemetry.addData("kStatic ", controller.getkStatic());
             telemetry.addData("Motor Command ", newMotorPower);
-            telemetry.addData("Actual RPM = ", turntableMotor.getActualRPM());
+            telemetry.addData("Actual RPM = ", shooterMotor.getActualRPM());
             telemetry.addData(">", "stop to finish");
             telemetry.update();
 
             // send to the FTC Dashboard. Also makes them graphable
             dashboardTelemetry.addData("Requested Velocity ", trapezoidWave.getY());
             dashboardTelemetry.addData("Normalized Velocity ", normalizedRPM);
+            dashboardTelemetry.addData("Motor Power ", newMotorPower);
             dashboardTelemetry.update();
 
             idle();

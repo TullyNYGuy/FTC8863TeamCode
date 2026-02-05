@@ -66,7 +66,7 @@ public class DecodeTuneTurntableMotorPID extends LinearOpMode {
             turntableMotor.setPower(newMotorPower);
 
             telemetry.addData("Actual RPM = ", turntableMotor.getCommandedRPM());
-            turntableMotor.displayTurntableAngle();
+            turntableMotor.displayTurntableAngle(telemetry);
             telemetry.addData("kStatic ", controller.getkStatic());
             telemetry.addData("Motor Command ", newMotorPower);
             telemetry.addData(">", "stop to finish");

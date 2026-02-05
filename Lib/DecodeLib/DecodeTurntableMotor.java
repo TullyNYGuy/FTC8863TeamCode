@@ -122,11 +122,11 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         this.positionError = positionError;
     }
 
-    private final double MAX_TURNTABLE_ANGLE = 70; // DEGREES
-
-    public double getMAX_TURNTABLE_ANGLE() {
-        return MAX_TURNTABLE_ANGLE;
-    }
+//    private final double MAX_TURNTABLE_ANGLE = 70; // DEGREES
+//
+//    public double getMAX_TURNTABLE_ANGLE() {
+//        return MAX_TURNTABLE_ANGLE;
+//    }
 
     private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.TURNTABLE_MOTOR.hwName;
 
@@ -173,7 +173,7 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         turntableMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         setDirection(Direction.REVERSE);
 
-        controller = new PIDFController(new PIDCoefficients(0.012,0,.010),1.2,0,.002);
+        controller = new PIDFController(new PIDCoefficients(0.018,0,.010),1.2,0,.002);
         // set the target position tolerance in degrees. If the turntable is within 3 degrees of the target,
         // the controller will say that it is on target
         controller.setTargetPositionTolerance(3.0);
@@ -202,9 +202,13 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void displayTurntableAngle() {
-        telemetry.addData("encoder value ", turntableMotor.getCurrentPosition());
+    public void displayTurntableAngle(Telemetry telemetry) {
+        //telemetry.addData("encoder value ", turntableMotor.getCurrentPosition());
         telemetry.addData("turntable angle ", turntableMotor.getPositionInTermsOfAttachment());
+    }
+
+    public void displayMotorPower(Telemetry telemetry) {
+        telemetry.addData("Turntable motor power ", newPower);
     }
 
     public double getPositionInTermsOfAttachment(){
@@ -212,6 +216,7 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     }
 
     public void setPower(double power) {
+        newPower = power;
         turntableMotor.setPower(power);
     }
 
@@ -258,13 +263,12 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     public void updateWithPosition(double actualPosition) {
         // Something outside this class will have to update us with the Actual position.
         // limit the rotation of the turntable
-        if (Math.abs(actualPosition) < MAX_TURNTABLE_ANGLE) {
+        //if (Math.abs(getPositionInTermsOfAttachment()) < MAX_TURNTABLE_ANGLE) {
             newPower = controller.update(actualPosition);
-            telemetry.addData("Turntable Power: ", newPower);
-        } else {
+        //} else {
             // the turntable is over the max limit for rotation. Stop the motor
-            newPower = 0;
-        }
+            //newPower = 0;
+        //}
         turntableMotor.setPower(newPower);
     }
 

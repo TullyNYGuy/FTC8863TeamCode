@@ -238,7 +238,7 @@ public class PIDFController {
     }
 
     private void checkMovementComplete(double error) {
-        if (error < targetPositionTolerance) {
+        if (Math.abs(error) < targetPositionTolerance) {
             movementComplete = true;
         }
     }
@@ -293,6 +293,8 @@ public class PIDFController {
         final double error = getPositionError(measuredPosition);
 
         // check if the thing being controlled has arrived at its target, within the targetPositionTolerance
+        // this set the movement complete flag so the user can determine if the thing being controlled has
+        // arrived at its destination
         checkMovementComplete(error);
 
         if (lastUpdateTs == 0) {
@@ -301,10 +303,17 @@ public class PIDFController {
             return 0;
         }
 
+
         final double dt = timestamp - lastUpdateTs;
+
+        // integrate the error for use in kI term
         errorSum += 0.5 * (error + lastError) * dt;
+
+        // calculate a velocity from the change in error in case there is no real velocity
+        // This is for the kD term
         final double errorDeriv = (error - lastError) / dt;
 
+        // setup for the next loop
         lastError = error;
         lastUpdateTs = timestamp;
 

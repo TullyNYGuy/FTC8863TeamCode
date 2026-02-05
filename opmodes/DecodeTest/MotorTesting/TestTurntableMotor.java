@@ -85,7 +85,7 @@ public class TestTurntableMotor extends LinearOpMode {
             telemetry.addData("Next Speed = ", nextRPM);
             telemetry.addData("Actual RPM = ", turntableMotor.getActualRPM());
             telemetry.addData("Current used = ", turntableMotor.getCurrent());
-            turntableMotor.displayTurntableAngle();
+            turntableMotor.displayTurntableAngle(telemetry);
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

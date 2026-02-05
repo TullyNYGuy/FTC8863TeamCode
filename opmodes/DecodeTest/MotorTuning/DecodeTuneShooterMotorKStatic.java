@@ -4,18 +4,19 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShooterMotor;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeTurntableMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Decode Tune Turntable Motor Kstatic", group = "Tune")
+@TeleOp(name = "Decode Tune Shooter Motor Kstatic", group = "Tune")
 //@Disabled
-public class DecodeTuneTurntableMotorKStatic extends LinearOpMode {
+public class DecodeTuneShooterMotorKStatic extends LinearOpMode {
 
     // Put your variable declarations her
-    DecodeTurntableMotor turntableMotor;
+    DecodeShooterMotor shooterMotor;
 
     @Override
     public void runOpMode() {
@@ -35,8 +36,8 @@ public class DecodeTuneTurntableMotorKStatic extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        turntableMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
-        turntableMotor.init(null);
+        shooterMotor = new DecodeShooterMotor(hardwareMap, telemetry);
+        shooterMotor.init(null);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -70,7 +71,7 @@ public class DecodeTuneTurntableMotorKStatic extends LinearOpMode {
 
             if (debouncedDpadLeft.isPressed(gamepad2.dpad_left)) {
                 power = nextPower;
-                turntableMotor.setPower(power);
+                shooterMotor.setPower(power);
             }
 
             telemetry.addData("Y = ", "+" + Double.toString(coursePowerAdjustment));
@@ -83,8 +84,7 @@ public class DecodeTuneTurntableMotorKStatic extends LinearOpMode {
             telemetry.addLine();
             telemetry.addData("Current Speed = ", power);
             telemetry.addData("Next Speed = ", nextPower);
-            telemetry.addData("Actual RPM = ", turntableMotor.getCommandedRPM());
-            turntableMotor.displayTurntableAngle(telemetry);
+            telemetry.addData("Actual RPM = ", shooterMotor.getActualRPM());
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

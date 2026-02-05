@@ -84,7 +84,7 @@ public class DecodeTuneSorterMotorKStatic extends LinearOpMode {
             telemetry.addData("Current Speed = ", power);
             telemetry.addData("Next Speed = ", nextPower);
             telemetry.addData("Actual RPM = ", sorterMotor.getCommandedRPM());
-            sorterMotor.displayTurntableAngle();
+            sorterMotor.displayTurntableAngle(telemetry);
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

@@ -143,7 +143,7 @@ public class DecodeSorterController implements FTCRobotSubsystem {
         indicator.setColor(DecodeRGBIndicator.IndicatorColor.BLACK);
         // blinking means that the turntable is not locked onto the april tag. The turntable controller will
         // set this and control it but we default it here
-        indicator.setMode(DecodeRGBIndicator.Mode.BLINKING);
+        indicator.setMode(DecodeRGBIndicator.Mode.SOLID);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -519,7 +519,7 @@ public class DecodeSorterController implements FTCRobotSubsystem {
             // This state occurs after intaking the 2nd artifact
             case ARTIFACT_ARTIFACT_EMPTY:
                 // yellow for 2 artifacts in the sorter
-                indicator.setColor(DecodeRGBIndicator.IndicatorColor.YELLOW);
+                indicator.setColor(DecodeRGBIndicator.IndicatorColor.BLUE);
                 sorterSlotStatus = currentState;
                 switch (currentCommand) {
                     case PREPARE_TO_INTAKE:
@@ -558,7 +558,7 @@ public class DecodeSorterController implements FTCRobotSubsystem {
             // This state occurs after preparing to intake a 3rd artifact
             case EMPTY_ARTIFACT_ARTIFACT:
                 // yellow for 2 artifacts in the sorter
-                indicator.setColor(DecodeRGBIndicator.IndicatorColor.YELLOW);
+                indicator.setColor(DecodeRGBIndicator.IndicatorColor.BLUE);
                 sorterSlotStatus = SorterState.EMPTY_ARTIFACT_ARTIFACT;
                 switch (currentCommand) {
                     case PREPARE_TO_INTAKE:

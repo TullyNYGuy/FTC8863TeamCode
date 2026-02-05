@@ -3,10 +3,12 @@ package org.firstinspires.ftc.teamcode.Lib.DecodeLib;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
@@ -83,6 +85,10 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
 
     double shooterAngleToTarget = 0;
 
+    public double getShooterAngleToTarget() {
+        return shooterAngleToTarget;
+    }
+
     public void setShooterAngleToTarget(double shooterAngleToTarget, AngleUnit unit) {
         this.shooterAngleToTarget = unit.toDegrees(shooterAngleToTarget);
     }
@@ -92,7 +98,7 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
     /**
      * The maximum turntable rotation so that wiring does not get tangled up
      */
-    final double MAX_MOTOR_POSITION = 70; // in degrees
+    final double MAX_TURNTABLE_ANGLE = 70; // in degrees
     double targetPositionCenter = 0;
     double targetPositionCCW = 45;
     double targetPositionCW = -45;
@@ -100,6 +106,10 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
 
     double positionError = 0;
     double actualPosition = 0;
+
+    public double getActualPosition() {
+        return actualPosition;
+    }
 
     boolean aprilTagAcquired;
 
@@ -117,6 +127,7 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
     DecodeIMU imu;
 
     DecodePinpointDrive pinpointDrive;
+    private ElapsedTime timer;
 
     DecodeTarget goal;
 
@@ -128,6 +139,13 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
 
     double robotBearingToTarget;
     double robotRangeToTarget;
+
+    public double getRobotRangeToTarget() {
+        return robotRangeToTarget;
+    }
+    private double turntableAngle = 0;
+    private double robotHeadingVelocity = 0;
+    private double lastTx = 0;
 
     //*********************************************************************************************
     //          Constructors
@@ -149,6 +167,7 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
         this.pinpointDrive = pinpointDrive;
         this.goal = goal;
         this.indicator = indicator;
+        timer = new ElapsedTime();
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -176,6 +195,18 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
     private void logAprilTagAcquired(String comment) {
         if (loggingOn && logFile != null) {
             logAprilTagAcquiredOnChange.log(getName() + " " + comment);
+        }
+    }
+
+    private void startAprilTagSeenTimer() {
+        timer.reset();
+    }
+
+    private boolean wasAprilTagSeenRecently() {
+        if (timer.milliseconds() < 200) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -234,8 +265,12 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
         }
     }
 
+    public void displayShooterAngleToTarget(Telemetry telemetry) {
+        telemetry.addData("Shooter angle to target ", shooterAngleToTarget);
+    }
+
     public void joystickControlShooter(double joystickValue) {
-        shooterAngleToTarget = joystickValue * -MAX_MOTOR_POSITION;
+        shooterAngleToTarget = joystickValue * -MAX_TURNTABLE_ANGLE;
     }
 
     public void start(int pollRateInHz) {
@@ -257,8 +292,10 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
             // calculate the bearing of the robot (from the intake point of view) to the goal
             robotBearingToTarget = goal.getBearingToTarget(robotPose, AngleUnit.DEGREES);
             // calculate the shooter bearing to the goal
+            robotRangeToTarget = goal.getRangeToTarget(robotPose, DistanceUnit.INCH);
             shooterAngleToTarget = ShooterAngleCalculator.getShooterAngleToTarget(robotBearingToTarget, AngleUnit.DEGREES);
-            logComment("Pinpoint Control");
+            //logComment("shooter angle to target " + shooterAngleToTarget);
+            //logComment("Pinpoint Control");
 
         } else {
             logComment("Joystick Control");
@@ -275,40 +312,104 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
             logAprilTagAcquired("April Tag Acquired");
 
             // fast blinking indicates that the april tag is seen, but maybe not homed in yet
-            indicator.setMode(DecodeRGBIndicator.Mode.BLINKING);
-            indicator.setFrequency(6);
+            //indicator.setMode(DecodeRGBIndicator.Mode.BLINKING);
+            //indicator.setFrequency(6);
         } else {
             aprilTagAcquired = false;
             logAprilTagAcquired("April Tag NOT Acquired");
 
             // slow blinking indicates that the april tag is not seen
-            indicator.setMode(DecodeRGBIndicator.Mode.BLINKING);
-            indicator.setFrequency(3);
+            // blinking does not seem to work well
+            //indicator.setMode(DecodeRGBIndicator.Mode.BLINKING);
+            //indicator.setFrequency(3);
             //logComment(robotPose.toString());
         }
 
         // if the apriltag is in view control the turntable with its feedback
         // If not, then continue turning to the target using either joystick control or shooter bearing to target
-        if (aprilTagAcquired) {
-            targetPosition = TARGET_POSITION_TO_APRILTAG;
-            actualPosition = result.getTx();
+
+        turntableAngle = turntableMotor.getPositionInTermsOfAttachment();
+        if (Math.abs(turntableAngle) < MAX_TURNTABLE_ANGLE) {
+            // There can be an oscillation if the turntable sees an apriltag and then starts rapidly moving towards it.
+            // The motion blur can cause the april tag to be lost and then the control would be done by the calculated
+            // shooter angle to target. Instead of immediately switching, let the turntable continue to move to the point
+            // where it was headed when it saw the april tag. Give it some time to find the tag again.
+            if (aprilTagAcquired || wasAprilTagSeenRecently()) {
+                if (aprilTagAcquired) {
+                    // we see an april tag, reset the timer that tracks how long ago we saw an april tag
+                    startAprilTagSeenTimer();
+                    actualPosition = result.getTx();
+                    // save the actual position in case we lose the april tag temporarily
+                    lastTx = actualPosition;
+                }  else {
+                    // we lost the april tag but are within the time allowed to find it. Use the last
+                    // known Tx as the actual position
+                    actualPosition = lastTx;
+                }
+                targetPosition = TARGET_POSITION_TO_APRILTAG;
+            } else {
+                // the april tag is not seen or was seen too long ago to be valid. Use the shooter angle to
+                // target to control the turntable
+                targetPosition = shooterAngleToTarget;
+                actualPosition = turntableAngle;
+            }
+            turntableMotor.setTargetPosition(targetPosition);
+            turntableMotor.updateWithPosition(actualPosition);
         } else {
-            targetPosition = Range.clip(shooterAngleToTarget, -MAX_MOTOR_POSITION, +MAX_MOTOR_POSITION);
-            actualPosition = turntableMotor.getPositionInTermsOfAttachment();
+            // turntable is over the max rotation limit
+            // Setting the motor power to 0 to stop the rotation results in the turntable stuck at the limit.
+            // We have to check to see if the shooter angle to the target gets less than the rotation limit.
+            // If it does, then turn the PID back on again. To avoid an oscillation between the shooter angle to target
+            // and the max turntable angle, allow movement again when the shooter angle to target is a bit less than
+            // the max turn table angle.
+            if (Math.abs(shooterAngleToTarget) < MAX_TURNTABLE_ANGLE - 5) {
+                // The shooter angle to the target is less than the max turntable angle, run the PID again
+                if (aprilTagAcquired) {
+                    targetPosition = TARGET_POSITION_TO_APRILTAG;
+                    actualPosition = result.getTx();
+                } else {
+                    targetPosition = shooterAngleToTarget;
+                    actualPosition = turntableAngle;
+                }
+                turntableMotor.setTargetPosition(targetPosition);
+                turntableMotor.updateWithPosition(actualPosition);
+            } else {
+                // the shooter angle to target would force the turntable angle larger than the max. Turn the motor off.
+                turntableMotor.setPower(0);
+                actualPosition = turntableAngle;
+            }
+
         }
+
+//        // limit the turntable movement to a max angle. Use the calculated shooter bearing to target to control the limit.
+//        if (Math.abs(shooterAngleToTarget) < MAX_TURNTABLE_ANGLE) {
+//            // shooter is not at the limit of its rotation
+//            if (aprilTagAcquired) {
+//                // use the limelight to control the turntable angle
+//                targetPosition = TARGET_POSITION_TO_APRILTAG;
+//                actualPosition = result.getTx();
+//            } else {
+//                // april tag is not seen, use the calculated shooter angle to control the turntable
+//                targetPosition = shooterAngleToTarget;
+//                actualPosition = turntableMotor.getPositionInTermsOfAttachment();
+//            }
+//        } else {
+//            // the turntable is over the max. Shut the motor down until the robot moves to a pose that results in an
+//            // angle to the target that is less than the limit.
+//            turntableMotor.setPower(0);
+//        }
+
 
         // set the position and run the PID control
         //logComment("target position " + targetPosition);
         //logComment("actual Position " + actualPosition);
-        turntableMotor.setTargetPosition(targetPosition);
-        turntableMotor.updateWithPosition(actualPosition);
 
         positionError = targetPosition - actualPosition;
         // if the shooter error is less than +/- some number of degrees, indicate it is ok to fire
         // Note that there are two ways to home in on the goal, the april tag and just the calculation of the
         // shooter bearing to target. Either way, if the error is low, tell the drivers to shoot
         if (isOnTarget() ) {
-            indicator.setMode(DecodeRGBIndicator.Mode.SOLID);
+            indicator.setColor(DecodeRGBIndicator.IndicatorColor.GREEN);
         }
     }
 

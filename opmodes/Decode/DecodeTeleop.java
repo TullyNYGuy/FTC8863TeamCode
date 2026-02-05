@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.Decode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -7,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -40,12 +42,16 @@ public class DecodeTeleop extends LinearOpMode {
     //public DecodeField field;
     public Pose2D startPose;
 
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
     // public AutomaticTeleopFunctions automaticTeleopFunctions;
     //set color for each game
     //private FreightFrenzyStartSpot color = PersistantStorage.getStartSpot();
     private ElapsedTime timer;
 
     DataLogging dataLog = null;
+
 
     //private Pose2d startPose;
 
@@ -103,6 +109,7 @@ public class DecodeTeleop extends LinearOpMode {
         // control the rough positioning of the turntable using either the joystick (JOYSTICK_CONTROL) or the using a calculation of the
         // angle to the goal derived from the robot pose (PINPOINT_CONTROL)
         robot.turntableTrackingController.controlMode = DecodeTurntableTrackingController.ControlMode.PINPOINT_CONTROL;
+        robot.indicator.disableDataLogging();
 
         gamepad = new DecodeGamepad(gamepad1, gamepad2, robot);
 
@@ -193,17 +200,29 @@ public class DecodeTeleop extends LinearOpMode {
             //gamepad.displayGamepad2JoystickValues(telemetry);
             robot.sorterController.displayState(telemetry);
             robot.sorterController.displayCommand(telemetry);
+
             telemetry.addLine();
+
             robot.turntableTrackingController.displayIsOnTarget(telemetry);
             robot.turntableTrackingController.displayTargettingMethod(telemetry);
+            robot.turntableMotor.displayMotorPower(telemetry);
+            robot.turntableTrackingController.displayShooterAngleToTarget(telemetry);
+            robot.turntableMotor.displayTurntableAngle(telemetry);
+
             telemetry.addLine();
-            telemetry.addData("Turntable Motor Power: ", robot.turntableMotor.newPower);
+
             telemetry.addData("Robot Pose X: ", robot.mecanumDrive.pinpoint.getPosition().getX(DistanceUnit.INCH));
             telemetry.addData("Robot Pose Y: ", robot.mecanumDrive.pinpoint.getPosition().getY(DistanceUnit.INCH));
             telemetry.addData("Robot Pose Heading: ", robot.mecanumDrive.pinpoint.getPosition().getHeading(AngleUnit.DEGREES));
             telemetry.addData("", "");
             telemetry.addData(">", "Press Stop to end.");
+            telemetry.addData("Robot Range To Target: ", robot.turntableTrackingController.getRobotRangeToTarget());
             telemetry.update();
+
+            dashboardTelemetry.addData("Requested Angle ", robot.turntableTrackingController.getShooterAngleToTarget());
+            dashboardTelemetry.addData("Actual Angle ", robot.turntableTrackingController.getActualPosition());
+            dashboardTelemetry.addData("Motor Power ", robot.turntableMotor.newPower);
+            dashboardTelemetry.update();
 
             idle();
         }

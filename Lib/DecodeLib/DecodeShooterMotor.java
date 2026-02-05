@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.DecodeLib;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -195,9 +196,12 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     public double getCurrent() {
         return shooterMotor.getCurrent(CurrentUnit.AMPS);
     }
-
     public double getNoLoadRPM(){
         return shooterMotor.getNoLoadRPM();
+    }
+
+    public void setMode(DcMotor.RunMode mode) {
+        shooterMotor.setMode(mode);
     }
 
     @Override

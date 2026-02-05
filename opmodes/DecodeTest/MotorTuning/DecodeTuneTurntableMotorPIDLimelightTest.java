@@ -79,7 +79,7 @@ public class DecodeTuneTurntableMotorPIDLimelightTest extends LinearOpMode {
 
 
             telemetry.addData("Actual RPM = ", turntableMotor.getCommandedRPM());
-            turntableMotor.displayTurntableAngle();
+            turntableMotor.displayTurntableAngle(telemetry);
             telemetry.addData("kStatic ", controller.getkStatic());
             telemetry.addData("Actual Angle ", horizontalAngleToAprilTag);
             telemetry.addData("Motor Command ", newMotorPower);

@@ -39,7 +39,7 @@ public class TestTurntableMotorRawPower extends LinearOpMode {
         while (opModeIsActive()) {
 
             telemetry.addData("Current used = ", turntableMotor.getCurrent());
-            turntableMotor.displayTurntableAngle();
+            turntableMotor.displayTurntableAngle(telemetry);
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();
