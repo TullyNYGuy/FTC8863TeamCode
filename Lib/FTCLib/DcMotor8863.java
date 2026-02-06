@@ -2061,6 +2061,10 @@ public class DcMotor8863 implements DcMotor8863Interface {
         this.currentRunMode = mode;
     }
 
+    public void setPIDFCoefficients(DcMotor.RunMode mode, PIDFCoefficients pidfCoefficients) {
+        FTCDcMotor.setPIDFCoefficients(mode, pidfCoefficients);
+    }
+
     public DcMotor.RunMode getMode() {
         return FTCDcMotor.getMode();
     }

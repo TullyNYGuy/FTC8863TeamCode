@@ -173,7 +173,8 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         turntableMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         setDirection(Direction.REVERSE);
 
-        controller = new PIDFController(new PIDCoefficients(0.018,0,.010),1.2,0,.002);
+        // kP was .018 but it seemed like too much overshoot
+        controller = new PIDFController(new PIDCoefficients(0.012,0,.010),1.2,0,.002);
         // set the target position tolerance in degrees. If the turntable is within 3 degrees of the target,
         // the controller will say that it is on target
         controller.setTargetPositionTolerance(3.0);

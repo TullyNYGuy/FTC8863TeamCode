@@ -108,10 +108,11 @@ public class DecodeTeleop extends LinearOpMode {
 
         // control the rough positioning of the turntable using either the joystick (JOYSTICK_CONTROL) or the using a calculation of the
         // angle to the goal derived from the robot pose (PINPOINT_CONTROL)
-        robot.turntableTrackingController.controlMode = DecodeTurntableTrackingController.ControlMode.PINPOINT_CONTROL;
+        robot.turntableTrackingController.setMode(DecodeTurntableTrackingController.ControlMode.JOYSTICK_POSITION_CONTROL_WITH_LIMELIGHT);
         robot.indicator.disableDataLogging();
 
         gamepad = new DecodeGamepad(gamepad1, gamepad2, robot);
+        robot.turntableTrackingController.setGamepad(gamepad);
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
@@ -182,7 +183,6 @@ public class DecodeTeleop extends LinearOpMode {
                 // mecanum drive if you use this next line
               //  simpleMecanumDrive(gamepad1);
             }
-            robot.turntableTrackingController.joystickControlShooter(gamepad.gamepad2LeftJoyStickXValue);
 
 
 //            if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
@@ -208,6 +208,11 @@ public class DecodeTeleop extends LinearOpMode {
             robot.turntableMotor.displayMotorPower(telemetry);
             robot.turntableTrackingController.displayShooterAngleToTarget(telemetry);
             robot.turntableMotor.displayTurntableAngle(telemetry);
+
+            telemetry.addLine();
+
+            robot.ballShooter.displayActualRPM(telemetry);
+            robot.ballShooter.displayHoodPosition(telemetry);
 
             telemetry.addLine();
 

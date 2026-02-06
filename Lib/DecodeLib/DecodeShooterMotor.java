@@ -5,6 +5,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -202,6 +203,10 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
 
     public void setMode(DcMotor.RunMode mode) {
         shooterMotor.setMode(mode);
+    }
+
+    public void setPIDFCoefficients(DcMotor.RunMode mode, PIDFCoefficients pidfCoefficients) {
+        shooterMotor.setPIDFCoefficients(mode, pidfCoefficients);
     }
 
     @Override

@@ -25,6 +25,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
         MEDIUM,
         LONG
     }
+    private HoodPositions hoodPosition = HoodPositions.SHORT;
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -35,6 +36,8 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     private DecodeShooterMotor shooterMotor;
     private final String SHOOTER_MOTOR_NAME = DecodeRobot.HardwareName.SHOOTER_MOTOR.hwName;
     private DecodeHoodServo hoodServo;
+
+    private double requestedRPM = 0;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -134,6 +137,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     }
 
     public void setHoodPosition(HoodPositions hoodPosition) {
+        this.hoodPosition = hoodPosition;
         if (hoodPosition == HoodPositions.SHORT) {
             hoodServo.shortPosition();
         }
@@ -147,6 +151,14 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
 
     public double getActualRPM() {
         return shooterMotor.getActualRPM();
+    }
+
+    public void displayActualRPM(Telemetry telemetry) {
+        telemetry.addData("Shooter actual RPM ", shooterMotor.getActualRPM());
+    }
+
+    public void displayHoodPosition(Telemetry telemetry) {
+        telemetry.addData("Hood Position ", hoodPosition.toString() );
     }
 
     public void setMode(DcMotor.RunMode mode) {
