@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.DecodeTest.MotorTuning;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
@@ -15,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.PeriodicTrapezoidGenerator;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Decode Find Shooter Motor Feedforward kV", group = "Tune")
-//@Disabled
+@Disabled
 public class DecodeFindShooterMotorFeedfoward extends LinearOpMode {
 
     // Put your variable declarations her

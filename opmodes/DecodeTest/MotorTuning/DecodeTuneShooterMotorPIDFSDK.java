@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes.DecodeTest.MotorTuning;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShooterMotor;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDFController;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PeriodicSquareWaveGenerator;
@@ -16,8 +14,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.PeriodicSquareWaveGenerator;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Decode Tune Shooter Motor PIDF", group = "Tune")
-@Disabled
-public class DecodeTuneShooterMotorPIDF extends LinearOpMode {
+//@Disabled
+public class DecodeTuneShooterMotorPIDFSDK extends LinearOpMode {
 
     // Put your variable declarations her
     DecodeShooterMotor shooterMotor;
