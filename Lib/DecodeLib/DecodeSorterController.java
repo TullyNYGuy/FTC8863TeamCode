@@ -270,6 +270,14 @@ public class DecodeSorterController implements FTCRobotSubsystem {
         }
     }
 
+    public boolean isPreloadFinished() {
+        if (currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
     //

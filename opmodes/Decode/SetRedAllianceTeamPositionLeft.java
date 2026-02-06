@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeStoreBetweenMatches;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 
-@Autonomous(name = "Set RED alliance, LEFT side", group = "AA")
+@Autonomous(name = "Set RED alliance, LEFT side", group = "C")
 //@Disabled
 
 public class SetRedAllianceTeamPositionLeft extends LinearOpMode {
@@ -26,8 +26,8 @@ public class SetRedAllianceTeamPositionLeft extends LinearOpMode {
     ElapsedTime timer;
     Pose2D startingPose;
 
-    double poseX = 0; // in inches
-    double poseY = 0; // in inches
+    double poseX = 52; // in inches
+    double poseY = -14.5; // in inches
     double heading = 0; // in degrees
 
     @Override

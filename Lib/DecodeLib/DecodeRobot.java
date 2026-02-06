@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -243,6 +244,11 @@ public class DecodeRobot implements FTCRobot {
             subsystemMap.put(turntableTrackingController.getName(), turntableTrackingController);
         }
 
+        // setup the goals
+        redGoal = new DecodeTarget(new Pose2D(DistanceUnit.INCH, -58.3, 55.6, AngleUnit.DEGREES, 0));
+        blueGoal = new DecodeTarget(new Pose2D(DistanceUnit.INCH, -58.3, -55.6, AngleUnit.DEGREES, 0));
+        // set a goal for the turntable controller so that it is not null when updates run during auto init
+        setAllianceColor(AllianceColorTeamLocation.getAllianceColor());
 
         if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS) {
             init();
@@ -260,8 +266,6 @@ public class DecodeRobot implements FTCRobot {
                 */
             }
         }
-        redGoal = new DecodeTarget(new Pose2D(DistanceUnit.INCH, -58.3, 55.6, AngleUnit.DEGREES, 0));
-        blueGoal = new DecodeTarget(new Pose2D(DistanceUnit.INCH, -58.3, -55.6, AngleUnit.DEGREES, 0));
 
         return true;
     }
@@ -401,6 +405,7 @@ public class DecodeRobot implements FTCRobot {
         if (color == Color.RED) {
             turntableTrackingController.setGoal(redGoal);
         } else {
+            turntableTrackingController.setGoal(blueGoal);
         }
     }
 

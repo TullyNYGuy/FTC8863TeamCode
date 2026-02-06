@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.DecodeLib.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
@@ -30,6 +31,8 @@ public enum AutoStates{
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+
+    private DecodeRobot robot;
 
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
@@ -77,6 +80,9 @@ public enum AutoStates{
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+    public DecodeAutoRedRight(DecodeRobot robot) {
+        this.robot = robot;
+    }
 
     //*********************************************************************************************
     //          Helper Methods

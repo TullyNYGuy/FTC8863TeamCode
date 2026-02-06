@@ -29,7 +29,8 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
         JOYSTICK_POSITION_CONTROL_WITH_LIMELIGHT,
         //JOYSTICK_POSTIION_CONTROL_ONLY,
         //JOYSTICK_VELOCITY_CONTROL,
-        PINPOINT_CONTROL_WITH_LIMELIGHT_PRIOITY
+        PINPOINT_CONTROL_WITH_LIMELIGHT_PRIOITY,
+        ROTATE_TO_FIXED_ANGLE
         ;
     }
 
@@ -161,6 +162,16 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
 
     private double requestedTurntableAngleFromLimelight = 0;
 
+    private double requestedTurntableAngle = 0;
+
+    /**
+     * Set fixed angle that the turntable should hold. There is no tracking of the apriltag.
+     * @param requestedTurntableAngle
+     */
+    public void setRequestedTurntableAngle(double requestedTurntableAngle) {
+        this.requestedTurntableAngle = requestedTurntableAngle;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -179,7 +190,6 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
         this.turntableMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.imu = imu;
         this.pinpointDrive = pinpointDrive;
-        this.goal = goal;
         this.indicator = indicator;
         timer = new ElapsedTime();
     }
@@ -337,6 +347,10 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
     //*********************************************************************************************
     @Override
     public void update() {
+        if (gamepad == null && controlMode == ControlMode.JOYSTICK_POSITION_CONTROL_WITH_LIMELIGHT) {
+            // without access to the joystick to control the position, we have to switch to a mode that will work
+            controlMode = ControlMode.ROTATE_TO_FIXED_ANGLE;
+        }
 
         // get the robot position and heading
         robotPose = pinpointDrive.pinpoint.getPosition();
@@ -473,6 +487,12 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
                     }
 
                 }
+                break;
+            case ROTATE_TO_FIXED_ANGLE:
+                targetPosition = requestedTurntableAngle;
+                actualPosition = turntableAngle;
+                turntableMotor.setTargetPosition(targetPosition);
+                turntableMotor.updateWithPosition(actualPosition);
                 break;
         }
     }

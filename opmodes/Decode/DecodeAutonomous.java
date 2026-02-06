@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.Autonomous.DecodeAutoRedRight;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.Autonomous.DecodeAutonomousStateMachine;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShotDistance;
@@ -21,7 +23,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 
 import java.util.List;
 
-@Autonomous(name = "Decode Autonomous", group = "AA")
+@Autonomous(name = "Decode Autonomous", group = "A")
 //@Disabled
 
 public class DecodeAutonomous extends LinearOpMode {
@@ -32,6 +34,7 @@ public class DecodeAutonomous extends LinearOpMode {
 
     public DecodeRobot robot;
     public DecodeGamepad gamepad;
+    public DecodeAutonomousStateMachine autonomousStateMachine;
 
     public Configuration config = null;
     //public DecodeField field;
@@ -47,8 +50,7 @@ public class DecodeAutonomous extends LinearOpMode {
         MatchPhase.setMatchPhase(MatchPhase.AUTONOMOUS);
         if (startPose == null) {
             startPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
-        }
-        else {
+        } else {
             startPose = DecodeStoreBetweenMatches.startingPose;
         }
 
@@ -66,19 +68,27 @@ public class DecodeAutonomous extends LinearOpMode {
         }
         timer = new ElapsedTime();
 
+        // set the persistant storage variable saying this is the teleop phase
+        MatchPhase.setMatchPhase(MatchPhase.AUTONOMOUS);
+
         // create the robot and run the init for it
         robot = new DecodeRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
         robot.setAllianceColor(AllianceColorTeamLocation.getAllianceColor());
+        // there should be 3 preloaded artifacts
         robot.sorterController.setCurrentState(DecodeSorterController.SorterState.ARTIFACT_ARTIFACT_ARTIFACT);
         robot.mecanumDrive.pinpoint.setPosition(startPose);
         robot.turntableTrackingController.setPipelineNumber(DecodeShotDistance.ShotType.LONG);
+
+        // put the autonomous state machine here.
+        autonomousStateMachine = new DecodeAutoRedRight(robot);
 
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
 
         // create the gamepad
         gamepad = new DecodeGamepad(gamepad1, gamepad2, robot);
+        robot.turntableTrackingController.setGamepad(gamepad);
 
         // create the power play field. This sets the locations for our particular alliance color
         // and team location (left or right)
@@ -89,8 +99,6 @@ public class DecodeAutonomous extends LinearOpMode {
         // Allow reads of all of the motor data in one read.
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
-        // set the persistant storage variable saying this is the teleop phase
-        MatchPhase.setMatchPhase(MatchPhase.AUTONOMOUS);
 
         // set the start location of the robot
 
@@ -102,15 +110,6 @@ public class DecodeAutonomous extends LinearOpMode {
 
         //robot.mecanum.setPoseEstimate(startPose);
         timer.reset();
-
-        // put the webcam stuff here
-
-        // Create the pipeline to use to process the images coming from the webcam. It should be a
-        // statement like this:
-        //pipeline = new SignalConePipeline(telemetry);
-
-        // start the webcam processing images through the pipeline.
-        //robot.webcam.openCamera(OpenCvCameraRotation.UPRIGHT, pipeline);
 
         // Wait for the start button
 
@@ -124,11 +123,10 @@ public class DecodeAutonomous extends LinearOpMode {
             telemetry.addData(">", "Press start to run Auto (make sure you ran the position setter first!)");
             telemetry.addLine();
             // display the alliance color and team location for the drivers to double check
-          //  telemetry.addData("Alliance color = ", AllianceColorTeamLocation.getAllianceColor().toString());
-          //  telemetry.addData("Team Location  = ", AllianceColorTeamLocation.getTeamLocation().toString());
+            telemetry.addData("Alliance color = ", AllianceColorTeamLocation.getAllianceColor().toString());
+            telemetry.addData("Team Location  = ", AllianceColorTeamLocation.getTeamLocation().toString());
             telemetry.update();
 
-            // update persistant storage with the current park location
             idle();
         }
 
@@ -137,7 +135,7 @@ public class DecodeAutonomous extends LinearOpMode {
         //*********************************************************************************************
 
         robot.loopTimer.startLoopTimer();
-        dataLog.logData("Auto start" );
+        dataLog.logData("Auto start");
         timer.reset();
         // Turn off the webcam and pipeline processing to save CPU cycles
         //robot.webcam.closeCamera();
@@ -148,20 +146,23 @@ public class DecodeAutonomous extends LinearOpMode {
 
         boolean autoDone = false;
         // Start the state machine
-        while (opModeIsActive()) {
-         if (timer.milliseconds() >500 && autoDone == false) {
-             robot.mecanumDrive.rightBack.setPower(0);
-             robot.mecanumDrive.rightFront.setPower(0);
-             robot.mecanumDrive.leftBack.setPower(0);
-             robot.mecanumDrive.leftFront.setPower(0);
-             autoDone = true;
-         }
-            telemetry.update();
+        while (opModeIsActive() && !autonomousStateMachine.isComplete()) {
             robot.update();
+            autonomousStateMachine.update();
+
+            if (timer.milliseconds() > 500 && autoDone == false) {
+                robot.mecanumDrive.rightBack.setPower(0);
+                robot.mecanumDrive.rightFront.setPower(0);
+                robot.mecanumDrive.leftBack.setPower(0);
+                robot.mecanumDrive.leftFront.setPower(0);
+                autoDone = true;
+            }
+            telemetry.update();
+
             idle();
         }
 
-        dataLog.logData("Auto complete in ", timer.milliseconds() );
+        dataLog.logData("Auto complete in ", timer.milliseconds());
         //*************************************************************************************
         //  Stop everything after the user hits the stop button on the driver phone
         // ************************************************************************************
