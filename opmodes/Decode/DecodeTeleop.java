@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeBallShooter;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShotDistance;
@@ -41,6 +42,8 @@ public class DecodeTeleop extends LinearOpMode {
     public Configuration config = null;
     //public DecodeField field;
     public Pose2D startPose;
+
+    public double rangeToTarget = 0;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
@@ -113,6 +116,8 @@ public class DecodeTeleop extends LinearOpMode {
 
         gamepad = new DecodeGamepad(gamepad1, gamepad2, robot);
         robot.turntableTrackingController.setGamepad(gamepad);
+
+        robot.ballShooter.setControlMode(DecodeBallShooter.ShooterControlMode.MANUAL);
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 

@@ -356,7 +356,7 @@ public class DecodeTurntableTrackingController implements FTCRobotSubsystem {
         robotPose = pinpointDrive.pinpoint.getPosition();
         // calculate the bearing of the robot (from the intake point of view) to the goal
         robotBearingToTarget = goal.getBearingToTarget(robotPose, AngleUnit.DEGREES);
-        robotRangeToTarget = goal.getRangeToTarget(robotPose, DistanceUnit.INCH);
+        //robotRangeToTarget = goal.getRangeToTarget(robotPose, DistanceUnit.INCH);
         // calculate the shooter bearing to the goal
         shooterAngleToTarget = ShooterAngleCalculator.getShooterAngleToTarget(robotBearingToTarget, AngleUnit.DEGREES);
 

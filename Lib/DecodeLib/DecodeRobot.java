@@ -174,7 +174,7 @@ public class DecodeRobot implements FTCRobot {
 
 
         if (capabilities.contains(Subsystem.BALL_SHOOTER)) {
-            ballShooter = new DecodeBallShooter(hardwareMap, telemetry);
+            ballShooter = new DecodeBallShooter(hardwareMap, telemetry, mecanumDrive);
             subsystemMap.put(ballShooter.getName(), ballShooter);
         }
 
@@ -230,10 +230,12 @@ public class DecodeRobot implements FTCRobot {
                     indicator);
             subsystemMap.put(sorterController.getName(), sorterController);
         }
+
         if (capabilities.contains(Subsystem.LIMELIGHT3A)) {
             limelight = new DecodeLimelight(hardwareMap, telemetry, imu);
             subsystemMap.put(limelight.getName(), limelight);
         }
+
         if (capabilities.contains(Subsystem.TURNTABLE_CONTROLLER)) {
             turntableTrackingController = new DecodeTurntableTrackingController(hardwareMap, telemetry,
                     limelight,
@@ -404,8 +406,10 @@ public class DecodeRobot implements FTCRobot {
     public void setAllianceColor(Color color) {
         if (color == Color.RED) {
             turntableTrackingController.setGoal(redGoal);
+            ballShooter.setGoal(redGoal);
         } else {
             turntableTrackingController.setGoal(blueGoal);
+            ballShooter.setGoal(blueGoal);
         }
     }
 

@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeBallShooter;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeMotor;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodePinpointDrive;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 
@@ -21,6 +23,7 @@ public class TestSorterIntakeShooter extends LinearOpMode {
     DecodeIntakeMotor intakeMotor;
 
     DecodeBallShooter ballShooter;
+    DecodePinpointDrive mecanumDrive;
 
     @Override
     public void runOpMode() {
@@ -58,7 +61,9 @@ public class TestSorterIntakeShooter extends LinearOpMode {
         intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
         intakeMotor.init(null);
 
-        ballShooter = new DecodeBallShooter(hardwareMap, telemetry);
+        mecanumDrive = new DecodePinpointDrive(hardwareMap, new Pose2d(0, 0, 0));
+
+        ballShooter = new DecodeBallShooter(hardwareMap, telemetry, mecanumDrive);
         ballShooter.init(null);
 
         // Wait for the start button

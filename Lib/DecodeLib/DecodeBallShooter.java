@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
@@ -26,6 +28,20 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
         LONG
     }
     private HoodPositions hoodPosition = HoodPositions.SHORT;
+
+    public enum ShooterControlMode {
+        MANUAL,
+        AUTOMATIC;
+    }
+    private ShooterControlMode controlMode = ShooterControlMode.MANUAL;
+
+    public ShooterControlMode getControlMode() {
+        return controlMode;
+    }
+
+    public void setControlMode(ShooterControlMode controlMode) {
+        this.controlMode = controlMode;
+    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -37,7 +53,8 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     private final String SHOOTER_MOTOR_NAME = DecodeRobot.HardwareName.SHOOTER_MOTOR.hwName;
     private DecodeHoodServo hoodServo;
 
-    private double requestedRPM = 0;
+    private int requestedRPM = 0;
+
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -53,6 +70,19 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     public void setRPM(int aRPM) {
         this.RPM = aRPM;
         shooterMotor.setRPM(this.RPM);
+    }
+
+    double robotRangeToTarget;
+
+    public double getRobotRangeToTarget() {
+        return robotRangeToTarget;
+    }
+    Pose2D robotPose;
+    DecodePinpointDrive pinpointDrive;
+    DecodeTarget goal;
+
+    public void setGoal(DecodeTarget goal) {
+        this.goal = goal;
     }
 
     /**
@@ -99,15 +129,72 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
      * @param hardwareMap      Hardware map from the FTC robot
      * @param telemetry        The telemetry from the FTC robot
      */
-    public DecodeBallShooter(HardwareMap hardwareMap, Telemetry telemetry) {
+    public DecodeBallShooter(HardwareMap hardwareMap, Telemetry telemetry,
+                             DecodePinpointDrive pinpointDrive) {
         shooterMotor = new DecodeShooterMotor(hardwareMap, telemetry);
         hoodServo = new DecodeHoodServo(hardwareMap, telemetry);
+        this.pinpointDrive = pinpointDrive;
     }
     //*********************************************************************************************
     //          Helper Methods
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    private void calculateRPMAndHoodServoPosition() {
+        // set the rpm of the shooter motor and the servo hood position based on the distance to the goal,
+        // as measured from the intake of the robot
+        robotRangeToTarget = goal.getRangeToTarget(robotPose, DistanceUnit.INCH);
+        if (robotRangeToTarget >= 128) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 5100;
+        } else if (robotRangeToTarget >= 122) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4950;
+        } else if (robotRangeToTarget >= 96) {
+            hoodPosition = HoodPositions.MEDIUM;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 90) {
+            hoodPosition = HoodPositions.MEDIUM;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 84) {
+            hoodPosition = HoodPositions.MEDIUM;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 78) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 72) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 66) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 60) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 54) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 48) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 42) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 36) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 30) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        } else if (robotRangeToTarget >= 24) {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        } else {
+            hoodPosition = HoodPositions.LONG;
+            requestedRPM = 4100;
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -116,17 +203,23 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public void shootLong() {
-        shooterMotor.runAtRPMForLongShot();
-        setHoodPosition(HoodPositions.LONG);
+        if (controlMode == ShooterControlMode.MANUAL) {
+            shooterMotor.runAtRPMForLongShot();
+            setHoodPosition(HoodPositions.LONG);
+        }
     }
 
     public void shootMedium() {
-        shooterMotor.runAtRPMForMediumShot();
-        setHoodPosition(HoodPositions.SHORT);
+        if (controlMode == ShooterControlMode.MANUAL) {
+            shooterMotor.runAtRPMForMediumShot();
+            setHoodPosition(HoodPositions.SHORT);
+        }
     }
     public void shootShort() {
-        shooterMotor.runAtRPMForShortShot();
-        setHoodPosition(HoodPositions.SHORT);
+        if (controlMode == ShooterControlMode.MANUAL) {
+            shooterMotor.runAtRPMForShortShot();
+            setHoodPosition(HoodPositions.SHORT);
+        }
     }
 
     /**
@@ -185,6 +278,16 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     @Override
     public void update() {
         shooterMotor.update();
+        switch (controlMode) {
+            case MANUAL:
+                // the driver sets the hood position and rpm manually using button on the gamepad
+                break;
+            case AUTOMATIC:
+                calculateRPMAndHoodServoPosition();
+                setHoodPosition(hoodPosition);
+                setRPM(requestedRPM);
+                break;
+        }
         // The hood servo updates when isPositionReached() is called
     }
 

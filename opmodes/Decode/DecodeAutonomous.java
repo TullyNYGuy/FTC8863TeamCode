@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.Autonomous.DecodeAutoRedRight;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.Autonomous.DecodeAutonomousStateMachine;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeBallShooter;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShotDistance;
@@ -90,6 +91,8 @@ public class DecodeAutonomous extends LinearOpMode {
         gamepad = new DecodeGamepad(gamepad1, gamepad2, robot);
         robot.turntableTrackingController.setGamepad(gamepad);
 
+        robot.ballShooter.setControlMode(DecodeBallShooter.ShooterControlMode.MANUAL);
+
         // create the power play field. This sets the locations for our particular alliance color
         // and team location (left or right)
         //field = new DecodeField(DecodePersistantStorage.getColorLocation());
@@ -144,9 +147,13 @@ public class DecodeAutonomous extends LinearOpMode {
         robot.mecanumDrive.leftBack.setPower(1.0);
         robot.mecanumDrive.leftFront.setPower(1.0);
 
-        boolean autoDone = false;
         // Start the state machine
+        boolean autoDone = false;
+        autonomousStateMachine.start();
+
+
         while (opModeIsActive() && !autonomousStateMachine.isComplete()) {
+            // update the robot and the state machine
             robot.update();
             autonomousStateMachine.update();
 

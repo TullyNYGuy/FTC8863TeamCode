@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeBallShooter;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeMotor;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodePinpointDrive;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRampServo;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
@@ -28,6 +30,8 @@ public class TestBallShooter extends LinearOpMode {
     DecodeSorterMotor sorterMotor;
     DecodeIntakeMotor intakeMotor;
     DecodeRampServo rampServo;
+
+    DecodePinpointDrive mecanumDrive;
 
     PIDFController controller;
 
@@ -54,14 +58,19 @@ public class TestBallShooter extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        ballShooter = new DecodeBallShooter(hardwareMap, telemetry);
+        mecanumDrive = new DecodePinpointDrive(hardwareMap, new Pose2d(0, 0, 0));
+        ballShooter = new DecodeBallShooter(hardwareMap, telemetry, mecanumDrive);
         ballShooter.init(null);
+        ballShooter.setControlMode(DecodeBallShooter.ShooterControlMode.MANUAL);
         sorterMotor = new DecodeSorterMotor(hardwareMap, telemetry);
         intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
         rampServo = new DecodeRampServo(hardwareMap, telemetry);
 
+
         controller = new PIDFController(new PIDCoefficients(0,0,.00),.000185,0,0);
         controller.setOutputBounds(-1,1);
+
+
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
